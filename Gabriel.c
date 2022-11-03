@@ -27,7 +27,7 @@ void affichagetest(){
 
     ALLEGRO_DISPLAY *display = NULL;
     al_set_new_display_flags(ALLEGRO_WINDOWED);
-    display = al_create_display(1024, 768);
+    display = al_create_display(1535, 864);
     assert(display != NULL);
     al_set_window_title(display, "Jeu");
     al_set_window_position(display, 0, 0);
@@ -86,6 +86,10 @@ void affichagetest(){
 
     };
 
+    ALLEGRO_BITMAP* Bordure=al_load_bitmap("../Route/Bordure.PNG");
+    ALLEGRO_BITMAP* Sapin=al_load_bitmap("../Route/Sapin.PNG");
+    ALLEGRO_BITMAP* Arbre=al_load_bitmap("../Route/Arbre.PNG");
+
     Avantplan Caseselec={0};
     Caseselec.x=0;
     Caseselec.y=0;
@@ -103,12 +107,23 @@ void affichagetest(){
 
 
 
+
     for (int i = 0; i < 45; ++i) {
         for (int j = 0; j < 35; ++j) {
             casesMap[i][j].routepresente=false;
             casesMap[i][j].batimentpresent=false;
+            casesMap[i][j].sapin=malloc(4* sizeof(bool));
+            for (int k = 0; k < 4; ++k) {
+                casesMap[i][j].sapin[k]=false;
+            }
+            casesMap[i][j].arbre=false;
+
         }
     }
+
+
+
+
 
 
 
@@ -119,6 +134,54 @@ void affichagetest(){
     bool fintest=false;
     float decallagex=0;
     float decallagey=0;
+
+    int statsapin=43;
+    bool passapin=false;
+    bool debutforet;
+
+
+
+    for (int i = 0; i < 45; ++i) {
+        for (int j = 0; j < 35; ++j) {
+            for (int k = 0; k < 4; ++k) {
+                for (int l = 0; l < 4; ++l) {
+                    if ((i - 1 >= 0 && casesMap[i - 1][j].sapin[l]) || (i + 1 < 44 && casesMap[i + 1][j].sapin[l]) ||(j - 1 >= 0 && casesMap[i][j - 1].sapin[l]) || (j + 1 <= 34 && casesMap[i][j + 1].sapin[l])) {
+                        debutforet = true;
+                    }
+                }
+
+                if (debutforet && statsapin > 10) {
+                    statsapin -= 10;
+                }else if (debutforet && statsapin > 5) {
+                    statsapin -= 5;
+                }else if (debutforet && statsapin > 4) {
+                    statsapin -= 4;
+                }else if (debutforet && statsapin > 3) {
+                    statsapin -= 3;
+                }else if (debutforet && statsapin > 2) {
+                    statsapin -= 2;
+                } else if (debutforet) {
+                    statsapin -= 1;
+                }
+                if ((rand()) % statsapin == 0) {
+                    casesMap[i][j].sapin[k] = true;
+                    passapin=false;
+                }
+            }if (passapin&&statsapin<=30){
+                casesMap[i][j].arbre = true;
+            }else{
+                passapin=true;
+            }
+            if (debutforet) {
+                debutforet = false;
+                statsapin = 43;
+            }
+
+
+        }
+    }
+
+
 
     long long compttimer=0;
     al_start_timer(timer);
@@ -136,17 +199,17 @@ void affichagetest(){
 
                     al_get_keyboard_state(&keyboard_state);
                     if (al_key_down(&keyboard_state, ALLEGRO_KEY_S)) {
-                        decallagey-=20;
+                        decallagey-=40;
                         calculcaseselec(&mouse_state,  &Caseselec, decallagex, decallagey);
 
                     } else if (al_key_down(&keyboard_state, ALLEGRO_KEY_Q)) {
-                        decallagex+=20;
+                        decallagex+=40;
                         calculcaseselec(&mouse_state,  &Caseselec, decallagex, decallagey);
                     } else if (al_key_down(&keyboard_state, ALLEGRO_KEY_D)) {
-                        decallagex-=20;
+                        decallagex-=40;
                         calculcaseselec(&mouse_state,  &Caseselec, decallagex, decallagey);
                     } else if (al_key_down(&keyboard_state, ALLEGRO_KEY_Z)) {
-                        decallagey+=20;
+                        decallagey+=40;
                         calculcaseselec(&mouse_state,  &Caseselec, decallagex, decallagey);
                     }
 
@@ -156,64 +219,96 @@ void affichagetest(){
 
 
                     al_clear_to_color(al_map_rgb(0,0,0));
-                    al_get_mouse_state(&mouse_state);
+                    for (int i = 0; i < 11; ++i) {
+                        al_draw_bitmap(Bordure,CASE*5*(float)i+XPRIMAIRE+decallagex-500, -500+YPRIMAIRE+decallagey, 0);
+                        al_draw_bitmap(Bordure,CASE*5*(float)i+XPRIMAIRE+decallagex-500, 3500+YPRIMAIRE+decallagey, 0);
+                    }
+                    for (int i = 0; i < 9; ++i) {
+                        al_draw_bitmap(Bordure,XPRIMAIRE+decallagex-500, YPRIMAIRE+decallagey+CASE*5*(float)i, 0);
+                        al_draw_bitmap(Bordure,XPRIMAIRE+decallagex+4500, YPRIMAIRE+decallagey+CASE*5*(float)i, 0);
+                    }
+
 
                     for (int i = 0; i < 45; ++i) {
                         for (int j = 0; j<35; j++){
                             if(!casesMap[i][j].routepresente && !casesMap[i][j].batimentpresent ){
                                 al_draw_bitmap(Route[0],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                             }else if(casesMap[i][j].routepresente){
-                                if(casesMap[i][j-1].routepresente){
-                                    if(casesMap[i][j+1].routepresente){
-                                        if(casesMap[i-1][j].routepresente){
-                                            if(casesMap[i+1][j].routepresente){
+
+                                if((j-1>=0)&&casesMap[i][j-1].routepresente){
+
+                                    if((j+1<=34)&&casesMap[i][j+1].routepresente){
+                                        if((i-1>=0)&&casesMap[i-1][j].routepresente){
+                                            if((i+1<=44)&&casesMap[i+1][j].routepresente){
                                                 al_draw_bitmap(Route[16],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                             }else{
                                                 al_draw_bitmap(Route[12],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                             }
 
-                                        }else if(casesMap[i+1][j].routepresente){
+                                        }else if((i+1<=44)&&casesMap[i+1][j].routepresente){
                                             al_draw_bitmap(Route[13],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                         }else{
                                             al_draw_bitmap(Route[6],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                         }
-                                    }else if(casesMap[i-1][j].routepresente){
-                                        if(casesMap[i+1][j].routepresente){
+                                    }else if((i-1>=0)&&casesMap[i-1][j].routepresente){
+                                        if((i+1<=44)&&casesMap[i+1][j].routepresente){
                                             al_draw_bitmap(Route[14],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                         }else{
                                             al_draw_bitmap(Route[7],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                         }
-                                    }else if(casesMap[i+1][j].routepresente){
+                                    }else if((i+1<=44)&&casesMap[i+1][j].routepresente){
                                         al_draw_bitmap(Route[8],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                     }else{
                                         al_draw_bitmap(Route[2],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                     }
 
-                                }else if(casesMap[i][j+1].routepresente){
-                                    if(casesMap[i-1][j].routepresente){
-                                        if(casesMap[i+1][j].routepresente){
+                                }else if((j+1<=34)&&casesMap[i][j+1].routepresente){
+
+                                    if((i-1>=0)&&casesMap[i-1][j].routepresente){
+                                        if((i+1<=44)&&casesMap[i+1][j].routepresente){
                                             al_draw_bitmap(Route[15],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                         }else{
                                             al_draw_bitmap(Route[9],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                         }
 
-                                    }else if(casesMap[i+1][j].routepresente){
+                                    }else if((i+1<=44)&&casesMap[i+1][j].routepresente){
 
                                         al_draw_bitmap(Route[10],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                     }else{
                                         al_draw_bitmap(Route[3],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                     }
 
-                                }else if(casesMap[i-1][j].routepresente){
-                                    if(casesMap[i+1][j].routepresente){
+                                }else if((i-1>=0)&&casesMap[i-1][j].routepresente){
+
+                                    if((i+1<=44)&&casesMap[i+1][j].routepresente){
                                         al_draw_bitmap(Route[11],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                     }else{
                                         al_draw_bitmap(Route[4],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                     }
-                                }else if(casesMap[i+1][j].routepresente){
+                                }else if((i+1<=44)&&casesMap[i+1][j].routepresente){
+
                                     al_draw_bitmap(Route[5],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                                 }else{
+
                                     al_draw_bitmap(Route[1],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
+                                }
+
+                            }
+
+                        }
+                    }
+
+                    for (int i = 0; i < 35; ++i) {
+                        for (int j = 0; j < 45; ++j) {
+                            if(!casesMap[j][i].routepresente&&!casesMap[j][i].batimentpresent){
+                                for (int k = 0; k < 4; ++k) {
+                                    if(casesMap[j][i].sapin[k]){
+                                        al_draw_bitmap(Sapin,CASE*(float)j+XPRIMAIRE+decallagex+3+(k%2)*50, CASE*(float)i+YPRIMAIRE+decallagey-13+((k>=2)?0:1)*50, 0);
+                                    }
+                                }
+                                if(casesMap[j][i].arbre){
+                                    al_draw_bitmap(Arbre,CASE*(float)j+XPRIMAIRE+decallagex+15, CASE*(float)i+YPRIMAIRE+decallagey-10, 0);
+
                                 }
                             }
 
@@ -223,7 +318,12 @@ void affichagetest(){
 
 
 
+
+
                     al_draw_filled_rectangle(Caseselec.x, Caseselec.y, Caseselec.x+100, Caseselec.y+100, al_map_rgba(200, 20, 20, 80));
+
+                    al_draw_filled_rectangle(larg-200, 20, larg-20, 160, al_map_rgba(255, 255, 255, 100));
+                    al_draw_filled_rectangle(larg-200+Caseselec.numcolonne*4, 20+Caseselec.numligne*4, larg-200+(Caseselec.numcolonne+1)*4, 20+(Caseselec.numligne+1)*4, al_map_rgba(200, 20, 20, 100));
 
                     al_flip_display();
 
@@ -248,6 +348,11 @@ void affichagetest(){
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                 if(!casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente && !casesMap[Caseselec.numcolonne][Caseselec.numligne].batimentpresent ){
                     casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente=true;
+                    for (int i = 0; i < 4; ++i) {
+                        casesMap[Caseselec.numcolonne][Caseselec.numligne].sapin[i]=false;
+                    }
+                }else if(casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente){
+                    casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente=false;
                 }
                 break;
 
@@ -267,9 +372,9 @@ void affichagetest(){
 
 void calculcaseselec(ALLEGRO_MOUSE_STATE* mouse_state, Avantplan* Caseselec, float decallagex, float decallagey){
     al_get_mouse_state(mouse_state);
-    for (int i =0; i<=45; i++){
+    for (int i =0; i<45; i++){
         if((float)mouse_state->x>=XPRIMAIRE+(float)i*CASE+decallagex&&(float)mouse_state->x<=XPRIMAIRE+(float)(i+1)*CASE+decallagex){
-            for (int j=0; j<=35; j++){
+            for (int j=0; j<35; j++){
                 if((float)mouse_state->y>=YPRIMAIRE+(float)j*CASE+decallagey&&(float)mouse_state->y<=YPRIMAIRE+(float)(j+1)*CASE+decallagey){
 
                     Caseselec->x = (float) i*CASE + (float) ((int) (decallagex) ) + XPRIMAIRE;

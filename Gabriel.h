@@ -31,6 +31,9 @@ typedef struct{
 typedef struct{
     bool routepresente;
     bool batimentpresent;
+    bool* sapin;
+    bool arbre;
+
 } Cases;
 
 void calculcaseselec(ALLEGRO_MOUSE_STATE* mouse_state, Avantplan* Caseselec, float decallagex, float decallagey);
