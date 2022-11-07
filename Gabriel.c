@@ -3,9 +3,9 @@
 //
 
 #include "Gabriel.h"
-#define XPRIMAIRE -2250
-#define YPRIMAIRE -1750
-#define CASE 100
+#define XPRIMAIRE 0
+#define YPRIMAIRE 0
+#define CASE 40
 
 void affichagetest(){
 
@@ -88,7 +88,7 @@ void affichagetest(){
 
     ALLEGRO_BITMAP* Bordure=al_load_bitmap("../Route/Bordure.PNG");
     ALLEGRO_BITMAP* Sapin=al_load_bitmap("../Route/Sapin.PNG");
-    ALLEGRO_BITMAP* Arbre=al_load_bitmap("../Route/Arbre.PNG");
+
 
     Avantplan Caseselec={0};
     Caseselec.x=0;
@@ -112,11 +112,8 @@ void affichagetest(){
         for (int j = 0; j < 35; ++j) {
             casesMap[i][j].routepresente=false;
             casesMap[i][j].batimentpresent=false;
-            casesMap[i][j].sapin=malloc(4* sizeof(bool));
-            for (int k = 0; k < 4; ++k) {
-                casesMap[i][j].sapin[k]=false;
-            }
-            casesMap[i][j].arbre=false;
+            casesMap[i][j].sapin=false;
+
 
         }
     }
@@ -135,47 +132,33 @@ void affichagetest(){
     float decallagex=0;
     float decallagey=0;
 
-    int statsapin=43;
-    bool passapin=false;
+    int statsapin=53;
     bool debutforet;
-
 
 
     for (int i = 0; i < 45; ++i) {
         for (int j = 0; j < 35; ++j) {
-            for (int k = 0; k < 4; ++k) {
-                for (int l = 0; l < 4; ++l) {
-                    if ((i - 1 >= 0 && casesMap[i - 1][j].sapin[l]) || (i + 1 < 44 && casesMap[i + 1][j].sapin[l]) ||(j - 1 >= 0 && casesMap[i][j - 1].sapin[l]) || (j + 1 <= 34 && casesMap[i][j + 1].sapin[l])) {
-                        debutforet = true;
-                    }
-                }
-
-                if (debutforet && statsapin > 10) {
-                    statsapin -= 10;
-                }else if (debutforet && statsapin > 5) {
-                    statsapin -= 5;
-                }else if (debutforet && statsapin > 4) {
-                    statsapin -= 4;
-                }else if (debutforet && statsapin > 3) {
-                    statsapin -= 3;
-                }else if (debutforet && statsapin > 2) {
-                    statsapin -= 2;
-                } else if (debutforet) {
-                    statsapin -= 1;
-                }
-                if ((rand()) % statsapin == 0) {
-                    casesMap[i][j].sapin[k] = true;
-                    passapin=false;
-                }
-            }if (passapin&&statsapin<=30){
-                casesMap[i][j].arbre = true;
-            }else{
-                passapin=true;
+            if ((i - 1 >= 0 && casesMap[i - 1][j].sapin) || (i + 1 < 44 && casesMap[i + 1][j].sapin) ||
+                (j - 1 >= 0 && casesMap[i][j - 1].sapin) || (j + 1 <= 34 && casesMap[i][j + 1].sapin)) {
+                debutforet = true;
             }
+
+
+            if (debutforet && statsapin > 51) {
+                statsapin -= 51;
+            }
+            if(rand()%statsapin==0){
+                casesMap[i][j].sapin=true;
+            }
+
+
             if (debutforet) {
                 debutforet = false;
-                statsapin = 43;
+                statsapin = 53;
             }
+
+
+
 
 
         }
@@ -199,19 +182,40 @@ void affichagetest(){
 
                     al_get_keyboard_state(&keyboard_state);
                     if (al_key_down(&keyboard_state, ALLEGRO_KEY_S)) {
-                        decallagey-=40;
+                        if(decallagey>(-(1600-haut))){
+                            decallagey-=40;
+                        }else if (decallagey>(-(1640-larg))){
+                            decallagey=-(1640-haut);
+                        }
+
+
                         calculcaseselec(&mouse_state,  &Caseselec, decallagex, decallagey);
 
                     } else if (al_key_down(&keyboard_state, ALLEGRO_KEY_Q)) {
-                        decallagex+=40;
+                        if(decallagex<160){
+                            decallagex+=40;
+                        }else if(decallagex<200){
+                            decallagex=200;
+                        }
+
                         calculcaseselec(&mouse_state,  &Caseselec, decallagex, decallagey);
                     } else if (al_key_down(&keyboard_state, ALLEGRO_KEY_D)) {
-                        decallagex-=40;
+                        if(decallagex>(-(1960-larg))){
+                            decallagex-=40;
+                        }else if (decallagex>(-(2000-larg))){
+                            decallagex=-(2000-larg);
+                        }
+
                         calculcaseselec(&mouse_state,  &Caseselec, decallagex, decallagey);
                     } else if (al_key_down(&keyboard_state, ALLEGRO_KEY_Z)) {
-                        decallagey+=40;
+                        if(decallagey<160){
+                            decallagey+=40;
+                        }else if(decallagex<200){
+                            decallagey=200;
+                        }
                         calculcaseselec(&mouse_state,  &Caseselec, decallagex, decallagey);
                     }
+
 
 
 
@@ -220,12 +224,12 @@ void affichagetest(){
 
                     al_clear_to_color(al_map_rgb(0,0,0));
                     for (int i = 0; i < 11; ++i) {
-                        al_draw_bitmap(Bordure,CASE*5*(float)i+XPRIMAIRE+decallagex-500, -500+YPRIMAIRE+decallagey, 0);
-                        al_draw_bitmap(Bordure,CASE*5*(float)i+XPRIMAIRE+decallagex-500, 3500+YPRIMAIRE+decallagey, 0);
+                        al_draw_bitmap(Bordure,CASE*5*(float)i+XPRIMAIRE+decallagex-200, -200+YPRIMAIRE+decallagey, 0);
+                        al_draw_bitmap(Bordure,CASE*5*(float)i+XPRIMAIRE+decallagex-200, 1400+YPRIMAIRE+decallagey, 0);
                     }
-                    for (int i = 0; i < 9; ++i) {
-                        al_draw_bitmap(Bordure,XPRIMAIRE+decallagex-500, YPRIMAIRE+decallagey+CASE*5*(float)i, 0);
-                        al_draw_bitmap(Bordure,XPRIMAIRE+decallagex+4500, YPRIMAIRE+decallagey+CASE*5*(float)i, 0);
+                    for (int i = 0; i < 7; ++i) {
+                        al_draw_bitmap(Bordure,XPRIMAIRE+decallagex-200, YPRIMAIRE+decallagey+CASE*5*(float)i, 0);
+                        al_draw_bitmap(Bordure,XPRIMAIRE+decallagex+1800, YPRIMAIRE+decallagey+CASE*5*(float)i, 0);
                     }
 
 
@@ -301,15 +305,13 @@ void affichagetest(){
                     for (int i = 0; i < 35; ++i) {
                         for (int j = 0; j < 45; ++j) {
                             if(!casesMap[j][i].routepresente&&!casesMap[j][i].batimentpresent){
-                                for (int k = 0; k < 4; ++k) {
-                                    if(casesMap[j][i].sapin[k]){
-                                        al_draw_bitmap(Sapin,CASE*(float)j+XPRIMAIRE+decallagex+3+(k%2)*50, CASE*(float)i+YPRIMAIRE+decallagey-13+((k>=2)?0:1)*50, 0);
-                                    }
-                                }
-                                if(casesMap[j][i].arbre){
-                                    al_draw_bitmap(Arbre,CASE*(float)j+XPRIMAIRE+decallagex+15, CASE*(float)i+YPRIMAIRE+decallagey-10, 0);
+                                if(casesMap[j][i].sapin){
+                                    al_draw_bitmap(Sapin,CASE*(float)j+XPRIMAIRE+decallagex-2, CASE*(float)i+YPRIMAIRE+decallagey-10, 0);
 
                                 }
+
+
+
                             }
 
 
@@ -320,9 +322,16 @@ void affichagetest(){
 
 
 
-                    al_draw_filled_rectangle(Caseselec.x, Caseselec.y, Caseselec.x+100, Caseselec.y+100, al_map_rgba(200, 20, 20, 80));
+                    al_draw_filled_rectangle(Caseselec.x, Caseselec.y, Caseselec.x+CASE, Caseselec.y+CASE, al_map_rgba(200, 20, 20, 80));
 
                     al_draw_filled_rectangle(larg-200, 20, larg-20, 160, al_map_rgba(255, 255, 255, 100));
+                    for(int i=0; i<45; i++){
+                        for(int j =0; j<35; j++){
+                            if(casesMap[i][j].routepresente){
+                                al_draw_filled_rectangle(larg-200+i*4, 20+j*4, larg-200+(i+1)*4, 20+(j+1)*4, al_map_rgba(10, 10, 10, 100));
+                            }
+                        }
+                    }
                     al_draw_filled_rectangle(larg-200+Caseselec.numcolonne*4, 20+Caseselec.numligne*4, larg-200+(Caseselec.numcolonne+1)*4, 20+(Caseselec.numligne+1)*4, al_map_rgba(200, 20, 20, 100));
 
                     al_flip_display();
@@ -346,12 +355,11 @@ void affichagetest(){
                 break;
 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-                if(!casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente && !casesMap[Caseselec.numcolonne][Caseselec.numligne].batimentpresent ){
+                if(Caseselec.numcolonne<45&&!casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente && !casesMap[Caseselec.numcolonne][Caseselec.numligne].batimentpresent  ){
                     casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente=true;
-                    for (int i = 0; i < 4; ++i) {
-                        casesMap[Caseselec.numcolonne][Caseselec.numligne].sapin[i]=false;
-                    }
-                }else if(casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente){
+                    casesMap[Caseselec.numcolonne][Caseselec.numligne].sapin=false;
+
+                }else if(Caseselec.numcolonne<45&&casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente){
                     casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente=false;
                 }
                 break;
@@ -372,6 +380,7 @@ void affichagetest(){
 
 void calculcaseselec(ALLEGRO_MOUSE_STATE* mouse_state, Avantplan* Caseselec, float decallagex, float decallagey){
     al_get_mouse_state(mouse_state);
+    bool unfined=true;
     for (int i =0; i<45; i++){
         if((float)mouse_state->x>=XPRIMAIRE+(float)i*CASE+decallagex&&(float)mouse_state->x<=XPRIMAIRE+(float)(i+1)*CASE+decallagex){
             for (int j=0; j<35; j++){
@@ -381,9 +390,16 @@ void calculcaseselec(ALLEGRO_MOUSE_STATE* mouse_state, Avantplan* Caseselec, flo
                     Caseselec->y = (float) j*CASE + (float) ((int) (decallagey) ) + YPRIMAIRE;
                     Caseselec->numcolonne=i;
                     Caseselec->numligne=j;
+                    unfined=false;
 
                 }
             }
         }
+    }
+    if(unfined){
+        Caseselec->x = (float) 2000*CASE + (float) ((int) (decallagex) ) + XPRIMAIRE;
+        Caseselec->y = (float) 2000*CASE + (float) ((int) (decallagey) ) + YPRIMAIRE;
+        Caseselec->numcolonne=2000;
+        Caseselec->numligne=2000;
     }
 }

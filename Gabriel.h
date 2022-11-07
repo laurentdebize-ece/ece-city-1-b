@@ -31,8 +31,8 @@ typedef struct{
 typedef struct{
     bool routepresente;
     bool batimentpresent;
-    bool* sapin;
-    bool arbre;
+    bool sapin;
+
 
 } Cases;
 
