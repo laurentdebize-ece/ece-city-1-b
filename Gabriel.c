@@ -43,10 +43,10 @@ void affichagetest(){
 
     ALLEGRO_FONT *Chiffre50 = al_load_ttf_font("../Fonts/Koulen-Regular.ttf", 50, 0);
     assert(Chiffre50);
-    ALLEGRO_FONT *Chiffre35 = al_load_ttf_font("../Fonts/Koulen-Regular.ttf", 35, 0);
+    ALLEGRO_FONT *PressStart35 = al_load_ttf_font("../Fonts/PressStart2P-Regular.ttf", 35, 0);
+    assert(PressStart35);
+    ALLEGRO_FONT *Chiffre35 = al_load_ttf_font("../Fonts/Koulen-Regular.ttf", 20, 0);
     assert(Chiffre35);
-    ALLEGRO_FONT *Chiffre20 = al_load_ttf_font("../Fonts/Koulen-Regular.ttf", 20, 0);
-    assert(Chiffre20);
 
     ALLEGRO_TIMER* timer= al_create_timer(0.01);
 
@@ -83,6 +83,15 @@ void affichagetest(){
             {al_load_bitmap("../Route/RouteBasGaucheDroite.PNG")},
             {al_load_bitmap("../Route/RouteHautBasGaucheDroite.PNG")},
 
+
+    };
+
+    ALLEGRO_BITMAP* Batiments[5]={
+            {al_load_bitmap("../Batiments/TerrainVague.PNG")},
+            {al_load_bitmap("../Batiments/Cabane.PNG")},
+            {al_load_bitmap("../Batiments/Maison.PNG")},
+            {al_load_bitmap("../Batiments/Immeuble.PNG")},
+            {al_load_bitmap("../Batiments/GratteCiel.PNG")},
 
     };
 
@@ -126,6 +135,7 @@ void affichagetest(){
 
 
 
+    long long chrono=0;
 
 
     bool fintest=false;
@@ -176,6 +186,18 @@ void affichagetest(){
 
             case ALLEGRO_EVENT_TIMER:
                 compttimer += 1;
+                if(compttimer % 100 == 0){
+                    chrono++;
+                    if(chrono%5==0){
+                        for (int i = 0; i < 45; ++i) {
+                            for (int j = 0; j < 35; ++j) {
+                                if(casesMap[i][j].batimentpresent&&casesMap[i][j].niveaudebatiment<4){
+                                    casesMap[i][j].niveaudebatiment++;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 if (compttimer % 8 == 0) {
 
@@ -233,9 +255,13 @@ void affichagetest(){
                     }
 
 
+
+
+
+
                     for (int i = 0; i < 45; ++i) {
                         for (int j = 0; j<35; j++){
-                            if(!casesMap[i][j].routepresente && !casesMap[i][j].batimentpresent ){
+                            if(!casesMap[i][j].routepresente ){
                                 al_draw_bitmap(Route[0],CASE*(float)i+XPRIMAIRE+decallagex, CASE*(float)j+YPRIMAIRE+decallagey, 0);
                             }else if(casesMap[i][j].routepresente){
 
@@ -302,6 +328,7 @@ void affichagetest(){
                         }
                     }
 
+
                     for (int i = 0; i < 35; ++i) {
                         for (int j = 0; j < 45; ++j) {
                             if(!casesMap[j][i].routepresente&&!casesMap[j][i].batimentpresent){
@@ -315,6 +342,13 @@ void affichagetest(){
                             }
 
 
+                        }
+                    }
+                    for (int i = 0; i < 35; ++i) {
+                        for (int j = 0; j < 45; ++j) {
+                            if(casesMap[j][i].batimentpresent){
+                                al_draw_bitmap(Batiments[casesMap[j][i].niveaudebatiment],CASE*(float)j+XPRIMAIRE+decallagex, CASE*(float)i+YPRIMAIRE+decallagey-(float)((casesMap[j][i].niveaudebatiment==4)?100:(casesMap[j][i].niveaudebatiment==3)?40:0), 0);
+                            }
                         }
                     }
 
@@ -334,6 +368,7 @@ void affichagetest(){
                     }
                     al_draw_filled_rectangle(larg-200+Caseselec.numcolonne*4, 20+Caseselec.numligne*4, larg-200+(Caseselec.numcolonne+1)*4, 20+(Caseselec.numligne+1)*4, al_map_rgba(200, 20, 20, 100));
 
+                    al_draw_textf(PressStart35, al_map_rgb(10, 10, 10), larg/2, 20, 0, "%d", (int)chrono);
                     al_flip_display();
 
 
@@ -356,7 +391,8 @@ void affichagetest(){
 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                 if(Caseselec.numcolonne<45&&!casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente && !casesMap[Caseselec.numcolonne][Caseselec.numligne].batimentpresent  ){
-                    casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente=true;
+                    casesMap[Caseselec.numcolonne][Caseselec.numligne].batimentpresent=true;
+                    casesMap[Caseselec.numcolonne][Caseselec.numligne].niveaudebatiment=0;
                     casesMap[Caseselec.numcolonne][Caseselec.numligne].sapin=false;
 
                 }else if(Caseselec.numcolonne<45&&casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente){

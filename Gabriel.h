@@ -32,7 +32,7 @@ typedef struct{
     bool routepresente;
     bool batimentpresent;
     bool sapin;
-
+    int niveaudebatiment;
 
 } Cases;
 
