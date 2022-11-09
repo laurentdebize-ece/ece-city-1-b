@@ -427,6 +427,7 @@ void affichagetest(){
                             for (int i = 0; i < 3; ++i) {
                                 for (int j = 0; j < 3; ++j) {
                                     casesMap[Caseselec.numcolonne][Caseselec.numligne].hautgauche=false;
+                                    casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente=false;
                                     casesMap[Caseselec.numcolonne+i][Caseselec.numligne+j].numerobatiment=nombrebatiment;
                                     casesMap[Caseselec.numcolonne+i][Caseselec.numligne+j].batimentpresent=true;
                                     casesMap[Caseselec.numcolonne+i][Caseselec.numligne+j].niveaudebatiment=0;
