@@ -97,6 +97,7 @@ void affichagetest(){
 
     ALLEGRO_BITMAP* Bordure=al_load_bitmap("../Route/Bordure.PNG");
     ALLEGRO_BITMAP* Sapin=al_load_bitmap("../Route/Sapin.PNG");
+    ALLEGRO_BITMAP* Ingo=al_load_bitmap("../ImagesMenuStart/SpriteIngo.PNG");
 
 
     Avantplan Caseselec={0};
@@ -121,6 +122,7 @@ void affichagetest(){
         for (int j = 0; j < 35; ++j) {
             casesMap[i][j].routepresente=false;
             casesMap[i][j].batimentpresent=false;
+            casesMap[i][j].hautgauche=false;
             casesMap[i][j].sapin=false;
 
 
@@ -131,6 +133,7 @@ void affichagetest(){
 
 
 
+    int nombrebatiment=0;
 
 
 
@@ -340,17 +343,14 @@ void affichagetest(){
 
 
                             }
-
-
-                        }
-                    }
-                    for (int i = 0; i < 35; ++i) {
-                        for (int j = 0; j < 45; ++j) {
-                            if(casesMap[j][i].batimentpresent){
+                            if(casesMap[j][i].hautgauche&&casesMap[j][i].batimentpresent){
                                 al_draw_bitmap(Batiments[casesMap[j][i].niveaudebatiment],CASE*(float)j+XPRIMAIRE+decallagex, CASE*(float)i+YPRIMAIRE+decallagey-(float)((casesMap[j][i].niveaudebatiment==4)?100:(casesMap[j][i].niveaudebatiment==3)?40:0), 0);
                             }
+
+
                         }
                     }
+
 
 
 
@@ -364,11 +364,17 @@ void affichagetest(){
                             if(casesMap[i][j].routepresente){
                                 al_draw_filled_rectangle(larg-200+i*4, 20+j*4, larg-200+(i+1)*4, 20+(j+1)*4, al_map_rgba(10, 10, 10, 100));
                             }
+                            if(casesMap[i][j].batimentpresent){
+                                al_draw_filled_rectangle(larg-200+i*4, 20+j*4, larg-200+(i+1)*4, 20+(j+1)*4, al_map_rgba(255, 10, 10, 100));
+                            }
                         }
                     }
-                    al_draw_filled_rectangle(larg-200+Caseselec.numcolonne*4, 20+Caseselec.numligne*4, larg-200+(Caseselec.numcolonne+1)*4, 20+(Caseselec.numligne+1)*4, al_map_rgba(200, 20, 20, 100));
+                    al_draw_filled_rectangle(larg-200+Caseselec.numcolonne*4, 20+Caseselec.numligne*4, larg-200+(Caseselec.numcolonne+1)*4, 20+(Caseselec.numligne+1)*4, al_map_rgba(120, 20, 120, 100));
 
                     al_draw_textf(PressStart35, al_map_rgb(10, 10, 10), larg/2, 20, 0, "%d", (int)chrono);
+
+
+
                     al_flip_display();
 
 
@@ -390,14 +396,54 @@ void affichagetest(){
                 break;
 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-                if(Caseselec.numcolonne<45&&!casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente && !casesMap[Caseselec.numcolonne][Caseselec.numligne].batimentpresent  ){
-                    casesMap[Caseselec.numcolonne][Caseselec.numligne].batimentpresent=true;
-                    casesMap[Caseselec.numcolonne][Caseselec.numligne].niveaudebatiment=0;
-                    casesMap[Caseselec.numcolonne][Caseselec.numligne].sapin=false;
+                al_get_mouse_state(&mouse_state);
 
-                }else if(Caseselec.numcolonne<45&&casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente){
-                    casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente=false;
+                if((mouse_state.buttons & 1) == 1) {
+                    if(Caseselec.numcolonne<45&&!casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente && !casesMap[Caseselec.numcolonne][Caseselec.numligne].batimentpresent  ) {
+                        casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente=true;
+                        casesMap[Caseselec.numcolonne][Caseselec.numligne].sapin=false;
+
+                    }else if(Caseselec.numcolonne<45&&casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente){
+                        casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente=false;
+                    }
+                }else{
+                    if(Caseselec.numcolonne<45&&!casesMap[Caseselec.numcolonne][Caseselec.numligne].routepresente && !casesMap[Caseselec.numcolonne][Caseselec.numligne].batimentpresent  ){
+                        bool batimentendessous = false;
+                        for (int i = 0; i < 3; ++i) {
+                            for (int j = 0; j < 3; ++j) {
+                                if(Caseselec.numcolonne+i>44||Caseselec.numligne+j>34){
+                                    batimentendessous=true;
+                                }else{
+                                    if( casesMap[Caseselec.numcolonne+i][Caseselec.numligne+j].batimentpresent==true){
+                                        batimentendessous=true;
+                                    }
+
+                                }
+
+                            }
+                        }
+                        if(!batimentendessous){
+                            nombrebatiment++;
+                            for (int i = 0; i < 3; ++i) {
+                                for (int j = 0; j < 3; ++j) {
+                                    casesMap[Caseselec.numcolonne][Caseselec.numligne].hautgauche=false;
+                                    casesMap[Caseselec.numcolonne+i][Caseselec.numligne+j].numerobatiment=nombrebatiment;
+                                    casesMap[Caseselec.numcolonne+i][Caseselec.numligne+j].batimentpresent=true;
+                                    casesMap[Caseselec.numcolonne+i][Caseselec.numligne+j].niveaudebatiment=0;
+                                    casesMap[Caseselec.numcolonne+i][Caseselec.numligne+j].sapin=false;
+
+                                }
+                            }
+                            casesMap[Caseselec.numcolonne][Caseselec.numligne].hautgauche=true;
+
+                        }
+
+
+
+                    }
                 }
+
+
                 break;
 
 

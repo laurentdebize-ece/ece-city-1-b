@@ -33,6 +33,8 @@ typedef struct{
     bool batimentpresent;
     bool sapin;
     int niveaudebatiment;
+    int numerobatiment;
+    bool hautgauche;
 
 } Cases;
 
