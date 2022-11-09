@@ -432,7 +432,6 @@ void testvoiture(){
                                                 }
 
                                             }
-
                                         }
                                     }
                                     if(!batimentendessous){
@@ -473,16 +472,10 @@ void testvoiture(){
 
 
 
-
-
-
+//hola
 
 
 }
-
-
-
-
 
 
 void calculcaseselecAna(ALLEGRO_MOUSE_STATE* mouse_state, Avantplan* Caseselec, float decallagex, float decallagey){
