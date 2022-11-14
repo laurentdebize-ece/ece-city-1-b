@@ -897,7 +897,7 @@ void affichage(){
                             }else if (achat!=(-1)&&niveauvue==0){
 
                                 if(achat==ROUTE) {
-                                    if(Caseselec.numcolonne<45&&casesMap[Caseselec.numcolonne][Caseselec.numligne].typedeconstruction==AUCUNE ) {
+                                    if(Caseselec.numcolonne<45&&casesMap[Caseselec.numcolonne][Caseselec.numligne].typedeconstruction==AUCUNE &&pokedollars>=10 ) {
                                         casesMap[Caseselec.numcolonne][Caseselec.numligne].typedeconstruction=ROUTE;
                                         casesMap[Caseselec.numcolonne][Caseselec.numligne].sapin=false;
                                         pokedollars-=10;
@@ -939,6 +939,33 @@ void affichage(){
                                             }
                                         }
                                         if(!batimentendessous){
+                                            switch (achat) {
+                                                case HABITATION:
+                                                    if(pokedollars>=1000){
+                                                        pokedollars-=1000;
+                                                    }else{
+                                                        batimentendessous=true;
+                                                    }
+                                                    break;
+                                                case CENTRALELEC:
+                                                case CHATEAUEAU:
+                                                    if(pokedollars>=100000){
+                                                        pokedollars-=100000;
+                                                    }else{
+                                                        batimentendessous=true;
+                                                    }
+                                                    break;
+                                                case CASERNE:
+                                                case POKEDEFENSE:
+                                                    if(pokedollars>=10000){
+                                                        pokedollars-=10000;
+                                                    }else{
+                                                        batimentendessous=true;
+                                                    }
+                                                    break;
+                                            }
+                                        }
+                                        if(!batimentendessous){
                                             nombrebatiment++;
                                             for (int i = 0; i < imax; ++i) {
                                                 for (int j = 0; j < jmax; ++j) {
@@ -951,19 +978,7 @@ void affichage(){
                                                 }
                                             }
                                             casesMap[Caseselec.numcolonne][Caseselec.numligne].hautgauche=true;
-                                            switch (achat) {
-                                                case HABITATION:
-                                                    pokedollars-=1000;
-                                                    break;
-                                                case CENTRALELEC:
-                                                case CHATEAUEAU:
-                                                    pokedollars-=100000;
-                                                    break;
-                                                case CASERNE:
-                                                case POKEDEFENSE:
-                                                    pokedollars-=10000;
-                                                    break;
-                                            }
+
 
                                         }
                                     }
