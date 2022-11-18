@@ -595,7 +595,7 @@ void affichage(){
 
 
 
-                                if(attaquegodzilla && compttimer%24==0){
+                                if(attaquegodzilla && compttimer%32==0){
                                     if(sensattaque==false){
                                         xgodzilla--;
                                         if(xgodzilla<=-5){
@@ -629,7 +629,7 @@ void affichage(){
                                         }
                                         for (int i = 0; i < 3; ++i) {
                                             if(xgodzilla+2<=44 && xgodzilla+2>=0 && ygodzilla+i >= 0 && ygodzilla+i<=34){
-                                                casesMap[xgodzilla+3][ygodzilla+i].sapin=false;
+                                                casesMap[xgodzilla+2][ygodzilla+i].sapin=false;
 
                                                 if(casesMap[xgodzilla+2][ygodzilla+i].typedeconstruction!=AUCUNE&&casesMap[xgodzilla+2][ygodzilla+i].typedeconstruction!=ROUTE){
                                                     nbhabitants-=casesMap[xgodzilla+2][ygodzilla+i].nombrehabitants;
@@ -649,7 +649,7 @@ void affichage(){
                                         }
                                     }
                                 }
-                                if(attaquegodzilla && compttimer%24==0){
+                                if(attaquegodzilla && compttimer%16==0){
                                     decalanim++;
                                 }
 
