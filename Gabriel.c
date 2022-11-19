@@ -115,7 +115,7 @@ void affichage(){
             {al_load_bitmap("../Batiments/Pokedefense.PNG")},
 
     };
-    ALLEGRO_BITMAP* Cataclysmes[12]={
+    ALLEGRO_BITMAP* Cataclysmes[16]={
             {al_load_bitmap("../Cataclysmes/Feu1.PNG")},
             {al_load_bitmap("../Cataclysmes/Feu2.PNG")},
             {al_load_bitmap("../Cataclysmes/Feu3.PNG")},
@@ -128,6 +128,11 @@ void affichage(){
             {al_load_bitmap("../Cataclysmes/Feu10.PNG")},
             {al_load_bitmap("../Cataclysmes/Feu11.PNG")},
             {al_load_bitmap("../Cataclysmes/Feu12.PNG")},
+            {al_load_bitmap("../Cataclysmes/Godzilla1.PNG")},
+            {al_load_bitmap("../Cataclysmes/Godzilla2.PNG")},
+            {al_load_bitmap("../Cataclysmes/Godzilla3.PNG")},
+            {al_load_bitmap("../Cataclysmes/Godzilla4.PNG")},
+
     };
 
     ALLEGRO_BITMAP* BoutonMenuJeu[9]={
@@ -194,6 +199,11 @@ void affichage(){
     int achat=-1;
     int nbhabitants=0;
     int niveauvue=0;
+    bool attaquegodzilla=false;
+    bool sensattaque=false;
+
+    int xgodzilla=-50;
+    int ygodzilla=-50;
 
 
 
@@ -536,6 +546,17 @@ void affichage(){
                                             }
                                         }
                                     }
+                                    if(rand()%1==0&&!attaquegodzilla){
+                                        attaquegodzilla=true;
+                                        ygodzilla=rand()%32;
+                                        if(rand()%2==0){
+                                            xgodzilla=50;
+                                            sensattaque=false;
+                                        }else{
+                                            xgodzilla=-5;
+                                            sensattaque=true;
+                                        }
+                                    }
                                 }
                             }
 
@@ -574,27 +595,69 @@ void affichage(){
 
 
 
+                                if(attaquegodzilla && compttimer%32==0){
+                                    if(sensattaque==false){
+                                        xgodzilla--;
+                                        if(xgodzilla<=-5){
+                                            attaquegodzilla=false;
+                                        }
+                                        for (int i = 0; i < 3; ++i) {
+                                            if(xgodzilla>=0 && xgodzilla<=44 && ygodzilla+i<=34 && ygodzilla+i>=0){
+
+                                                casesMap[xgodzilla][ygodzilla+i].sapin=false;
+
+                                                if(casesMap[xgodzilla][ygodzilla+i].typedeconstruction!=AUCUNE&&casesMap[xgodzilla][ygodzilla+i].typedeconstruction!=ROUTE){
+                                                    nbhabitants-=casesMap[xgodzilla][ygodzilla+i].nombrehabitants;
+                                                    for (int j = 0; j < 45; ++j) {
+                                                        for (int k = 0; k < 35; ++k) {
+                                                            if(casesMap[xgodzilla][ygodzilla+i].numerobatiment==casesMap[j][k].numerobatiment){
+                                                                casesMap[j][k].typedeconstruction=AUCUNE;
+                                                                casesMap[j][k].hautgauche=false;
+                                                                casesMap[j][k].nombrehabitants=0;
+                                                            }
+                                                        }
+                                                    }
+                                                }else if(casesMap[xgodzilla][ygodzilla+i].typedeconstruction==ROUTE){
+                                                    casesMap[xgodzilla][ygodzilla+i].typedeconstruction=AUCUNE;
+                                                }
+                                            }
+                                        }
+                                    }else{
+                                        xgodzilla++;
+                                        if(xgodzilla>= 50){
+                                            attaquegodzilla=false;
+                                        }
+                                        for (int i = 0; i < 3; ++i) {
+                                            if(xgodzilla+2<=44 && xgodzilla+2>=0 && ygodzilla+i >= 0 && ygodzilla+i<=34){
+                                                casesMap[xgodzilla+2][ygodzilla+i].sapin=false;
+
+                                                if(casesMap[xgodzilla+2][ygodzilla+i].typedeconstruction!=AUCUNE&&casesMap[xgodzilla+2][ygodzilla+i].typedeconstruction!=ROUTE){
+                                                    nbhabitants-=casesMap[xgodzilla+2][ygodzilla+i].nombrehabitants;
+                                                    for (int j = 0; j < 45; ++j) {
+                                                        for (int k = 0; k < 35; ++k) {
+                                                            if(casesMap[xgodzilla+2][ygodzilla+i].numerobatiment==casesMap[j][k].numerobatiment){
+                                                                casesMap[j][k].typedeconstruction=AUCUNE;
+                                                                casesMap[j][k].hautgauche=false;
+                                                                casesMap[j][k].nombrehabitants=0;
+                                                            }
+                                                        }
+                                                    }
+                                                }else if(casesMap[xgodzilla+2][ygodzilla+i].typedeconstruction==ROUTE){
+                                                    casesMap[xgodzilla+2][ygodzilla+i].typedeconstruction=AUCUNE;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if(attaquegodzilla && compttimer%16==0){
+                                    decalanim++;
+                                }
+
+
+
+
                                 al_clear_to_color(al_map_rgb(0,0,0));
-                                for (int i = 0; i < 11; ++i) {
-                                    if(niveauvue==0){
-                                        al_draw_bitmap(Bordure,CASE*5*(float)i+decallagex-200, -200+decallagey, 0);
-                                        al_draw_bitmap(Bordure,CASE*5*(float)i+decallagex-200, 1400+decallagey, 0);
-                                    }else{
-                                        al_draw_tinted_bitmap(Bordure,al_map_rgb(200,165,235),CASE*5*(float)i+decallagex-200, -200+decallagey, 0);
-                                        al_draw_tinted_bitmap(Bordure,al_map_rgb(200,165,235),CASE*5*(float)i+decallagex-200, 1400+decallagey, 0);
-                                    }
 
-                                }
-                                for (int i = 0; i < 7; ++i) {
-                                    if(niveauvue==0){
-                                        al_draw_bitmap(Bordure,decallagex-200, decallagey+CASE*5*(float)i, 0);
-                                        al_draw_bitmap(Bordure,decallagex+1800, decallagey+CASE*5*(float)i, 0);
-                                    }else{
-                                        al_draw_tinted_bitmap(Bordure,al_map_rgb(200,165,235),decallagex-200, decallagey+CASE*5*(float)i, 0);
-                                        al_draw_tinted_bitmap(Bordure,al_map_rgb(200,165,235),decallagex+1800, decallagey+CASE*5*(float)i, 0);
-                                    }
-
-                                }
 
 
 
@@ -672,6 +735,8 @@ void affichage(){
                                     }
                                 }
 
+                                al_draw_bitmap(Cataclysmes[12+(int)decalanim%4], CASE*xgodzilla+decallagex, CASE*ygodzilla+decallagey-20, sensattaque);
+
                                 for (int i = 0; i < 35; ++i) {
                                     for (int j = 0; j < 45; ++j) {
                                         if(casesMap[j][i].typedeconstruction==AUCUNE){
@@ -692,10 +757,6 @@ void affichage(){
                                                     al_draw_bitmap(Cataclysmes[(3+compttimer/8)%6],CASE*(float)j+decallagex-10, CASE*(float)i+decallagey-(float)((casesMap[j][i].niveaudebatiment==GRATTECIEL)?100:(casesMap[j][i].niveaudebatiment==IMMEUBLE)?40:0)-5, 0);
                                                     al_draw_bitmap(Cataclysmes[(compttimer/8)%6],CASE*(float)j+decallagex-20, CASE*(float)i+decallagey-(float)((casesMap[j][i].niveaudebatiment==GRATTECIEL)?100:(casesMap[j][i].niveaudebatiment==IMMEUBLE)?40:0)+2, 0);
                                                     al_draw_bitmap(Cataclysmes[(2+compttimer/8)%6],CASE*(float)j+decallagex+50, CASE*(float)i+decallagey-(float)((casesMap[j][i].niveaudebatiment==GRATTECIEL)?100:(casesMap[j][i].niveaudebatiment==IMMEUBLE)?40:0)+15, 1);
-
-
-
-
                                                 }
                                             }else{
                                                 al_draw_tinted_bitmap(Batiments[casesMap[j][i].niveaudebatiment],
@@ -717,8 +778,34 @@ void affichage(){
                                                                       al_map_rgba(100,100,100,40),CASE*(float)j+decallagex, CASE*(float)i+decallagey, 0);
                                             }
                                         }
+                                        if(xgodzilla ==j && ygodzilla==i-3){
+                                            al_draw_bitmap(Cataclysmes[12+(int)decalanim%4], CASE*xgodzilla+decallagex, CASE*ygodzilla+decallagey-20, sensattaque);
+                                        }
                                     }
                                 }
+                                for (int i = 0; i < 11; ++i) {
+                                    if(niveauvue==0){
+                                        al_draw_bitmap(Bordure,CASE*5*(float)i+decallagex-200, -200+decallagey, 0);
+                                        al_draw_bitmap(Bordure,CASE*5*(float)i+decallagex-200, 1400+decallagey, 0);
+                                    }else{
+                                        al_draw_tinted_bitmap(Bordure,al_map_rgb(200,165,235),CASE*5*(float)i+decallagex-200, -200+decallagey, 0);
+                                        al_draw_tinted_bitmap(Bordure,al_map_rgb(200,165,235),CASE*5*(float)i+decallagex-200, 1400+decallagey, 0);
+                                    }
+
+                                }
+                                for (int i = 0; i < 7; ++i) {
+                                    if(niveauvue==0){
+                                        al_draw_bitmap(Bordure,decallagex-200, decallagey+CASE*5*(float)i, 0);
+                                        al_draw_bitmap(Bordure,decallagex+1800, decallagey+CASE*5*(float)i, 0);
+                                    }else{
+                                        al_draw_tinted_bitmap(Bordure,al_map_rgb(200,165,235),decallagex-200, decallagey+CASE*5*(float)i, 0);
+                                        al_draw_tinted_bitmap(Bordure,al_map_rgb(200,165,235),decallagex+1800, decallagey+CASE*5*(float)i, 0);
+                                    }
+
+                                }
+
+
+
                                 //"Viseur"
                                 al_draw_filled_rectangle(Caseselec.x, Caseselec.y, Caseselec.x+CASE, Caseselec.y+CASE, al_map_rgba(200, 40, 180, 80));
 
@@ -755,6 +842,16 @@ void affichage(){
                                     }
                                 }
                                 al_draw_filled_rectangle(larg-200+Caseselec.numcolonne*4, 20+Caseselec.numligne*4, larg-200+(Caseselec.numcolonne+1)*4, 20+(Caseselec.numligne+1)*4, al_map_rgba(180, 20, 180, 100));
+
+                                for (int i = 0; i < 3; ++i) {
+                                    for (int j = 0; j < 3; ++j) {
+                                        if(xgodzilla+i>=0 && xgodzilla+i<=44 && ygodzilla+j>=0 && ygodzilla+j<=44){
+                                            al_draw_filled_rectangle(larg-200+(xgodzilla+i)*4, 20+(ygodzilla+j)*4, larg-200+(xgodzilla+i+1)*4, 20+(ygodzilla+j+1)*4, al_map_rgba(0, 0, 0, 100));
+
+                                        }
+                                    }
+                                }
+
 
 
                                 //Affichage et calibration du Chrono
@@ -888,6 +985,7 @@ void affichage(){
                                     if(achat!=-1){
                                         achat=-1;
                                     }else{
+                                        decalanim=1;
                                         /*finpartie = true;
                                         finmenu =false;
                                         lieumenu=DEMARRAGE;
