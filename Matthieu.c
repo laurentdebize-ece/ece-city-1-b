@@ -160,29 +160,40 @@ bool batimentRoute (Cases **cases, int i, int j){
 bool route (Cases **cases, int i, int j){
     if (cases[i][j].typedeconstruction == 1 && cases[i][j-1].typedeconstruction == 1){
         if (cases[i+1][j].typedeconstruction == ROUTE || cases[i-1][j].typedeconstruction == ROUTE || cases[i][j+1].typedeconstruction == ROUTE){
-            //BFS
+            route(cases, i, j-1);//BFS
+        }else if (cases[i+1][j].typedeconstruction == HABITATION || cases[i-1][j].typedeconstruction == HABITATION || cases[i][j+1].typedeconstruction == HABITATION){
+            return 1;
         }
     }
     else if (cases[i][j].typedeconstruction == 1 && cases[i-1][j].typedeconstruction == 1){
-        if (cases[i+1][j].typedeconstruction == ROUTE || cases[i][j-1].typedeconstruction == ROUTE || cases[i][j+1].typedeconstruction == ROUTE){
-            //BFS
+        if (cases[i+1][j].typedeconstruction == ROUTE || cases[i][j-1].typedeconstruction == ROUTE || cases[i][j+1].typedeconstruction == ROUTE) {
+            route(cases, i-1, j);//BFS
+        }else if (cases[i+1][j].typedeconstruction == HABITATION || cases[i][j-1].typedeconstruction == HABITATION || cases[i][j+1].typedeconstruction == HABITATION){
+            return 1;
         }
     }
     else if (cases[i][j].typedeconstruction == 1 && cases[i+1][j].typedeconstruction == 1){
         if (cases[i][j-1].typedeconstruction == ROUTE || cases[i-1][j].typedeconstruction == ROUTE || cases[i][j+1].typedeconstruction == ROUTE){
-            //BFS
+            route(cases, i+1, j);//BFS
+        }else if (cases[i][j-1].typedeconstruction == HABITATION || cases[i-1][j].typedeconstruction == HABITATION || cases[i][j+1].typedeconstruction == HABITATION){
+            return 1;
         }
     }
     else if (cases[i][j].typedeconstruction == 1 && cases[i][j+1].typedeconstruction == 1){
         if (cases[i+1][j].typedeconstruction == ROUTE || cases[i-1][j].typedeconstruction == ROUTE || cases[i][j-1].typedeconstruction == ROUTE){
-            //BFS
+            route(cases, i, j+1);//BFS
+        }else if (cases[i+1][j].typedeconstruction == HABITATION || cases[i-1][j].typedeconstruction == HABITATION || cases[i][j-1].typedeconstruction == HABITATION){
+            return 1;
         }
     }
     else if (cases[i][j].typedeconstruction == 1){
         if (cases[i+1][j].typedeconstruction == ROUTE || cases[i-1][j].typedeconstruction == ROUTE || cases[i][j-1].typedeconstruction == ROUTE || cases[i][j+1].typedeconstruction == ROUTE){
-            //BFS
+            route(cases, i, j);//BFS
+        }else if (cases[i+1][j].typedeconstruction == HABITATION || cases[i-1][j].typedeconstruction == HABITATION || cases[i][j+1].typedeconstruction == HABITATION || cases[i][j-1].typedeconstruction == HABITATION){
+            return 1;
         }
-    }
+    }else return 0;
+
 }
 
 

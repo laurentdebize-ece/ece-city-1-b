@@ -12,5 +12,6 @@
 bool habitationRoute (Cases **cases, int i, int j);
 void creerFichier (char *fichier, Cases** cases);
 void lireGraphe(char *fichier, Cases cases);
+bool route (Cases **cases, int i, int j);
 
 #endif //ECE_CITY_1_B_MATTHIEU_H
