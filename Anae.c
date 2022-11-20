@@ -7,11 +7,12 @@
 #define YPRIMAIRE 0
 #define CASE 40
 
+
 void testvoiture(){
 
     //***************DEMARRAGE ALLEGRO*****************
 
-
+    /// Initialisation des attributs d'Allegro
     assert(al_init());
     al_init_font_addon();
     al_init_ttf_addon();
@@ -24,15 +25,14 @@ void testvoiture(){
 
     //***************INITIALISATION DES VARIABLES*****************
 
-
-    ALLEGRO_DISPLAY *display = NULL;
+    ALLEGRO_DISPLAY *display = NULL;    /// Création du pointeur sur fenêtre
     al_set_new_display_flags(ALLEGRO_WINDOWED);
-    display = al_create_display(1535, 864);
-    assert(display != NULL);
+    display = al_create_display(1535, 864); /// Crée une fenêtre des dimensions demandées
+    assert(display != NULL);    /// Ferme le programme si la fenêtre n'a pas pu être créé
     al_set_window_title(display, "Jeu");
     al_set_window_position(display, 0, 0);
-    al_clear_to_color(al_map_rgb(0,0,0));
-    al_flip_display();
+    al_clear_to_color(al_map_rgb(0,0,0));   /// Remplit l'écran de noir
+    al_flip_display();  /// Actualise l'écran
 
 
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
@@ -52,6 +52,7 @@ void testvoiture(){
 
     ALLEGRO_KEYBOARD_STATE keyboard_state;
 
+    al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_mouse_event_source());
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -84,6 +85,9 @@ void testvoiture(){
             {al_load_bitmap("../Route/RouteHautBasGaucheDroite.PNG")},
 
 
+
+
+
     };
 
     ALLEGRO_BITMAP* Batiments[5]={
@@ -98,8 +102,10 @@ void testvoiture(){
     ALLEGRO_BITMAP* Bordure=al_load_bitmap("../Route/Bordure.PNG");
     ALLEGRO_BITMAP* Sapin=al_load_bitmap("../Route/Sapin.PNG");
     ALLEGRO_BITMAP* Ingo=al_load_bitmap("../ImagesMenuStart/SpriteIngo.PNG");
+    ALLEGRO_BITMAP *Pompier=al_load_bitmap("../ImagesAnae/Camionpompier.PNG");
 
 
+    assert(Pompier);
     Avantplan Caseselec={0};
     Caseselec.x=0;
     Caseselec.y=0;
@@ -118,8 +124,8 @@ void testvoiture(){
 
 
 
-    for (int i = 0; i < 45; ++i) {
-        for (int j = 0; j < 35; ++j) {
+    for (int i = 0; i < 45; ++i) {  /// Pour toutes les colonnes du plateau
+        for (int j = 0; j < 35; ++j) {  /// Pour toutes les lignes du plateau
             casesMap[i][j].routepresente=false;
             casesMap[i][j].batimentpresent=false;
             casesMap[i][j].hautgauche=false;
@@ -141,7 +147,10 @@ void testvoiture(){
     long long chrono=0;
 
     int etatjeu=0;
-
+    int distance=0;
+    int hauteur=0;
+    int orientation=0;
+    int sensCamion=3;
 
     bool finpartie=false;
     bool finjeu=false;
@@ -196,14 +205,14 @@ void testvoiture(){
 
 
                     ALLEGRO_EVENT event = {0};
-                    al_wait_for_event(queue, &event);
+                    al_wait_for_event(queue, &event);   /// Ne fait rien tant qu'il n'y a pas d'évènements
                     switch (event.type) {
 
-                        case ALLEGRO_EVENT_TIMER:
-                            compttimer += 1;
-                            if(compttimer % 100 == 0){
-                                chrono++;
-                                if(chrono%5==0){
+                        case ALLEGRO_EVENT_TIMER:   /// Si l'évènement est de type timer
+                            compttimer += 1;    /// On ajoute un tick au compteur de ticks
+                            if(compttimer % 100 == 0){  /// Si 100 ticks sont passés (1 seconde)
+                                chrono++;   /// On ajoute une seconde au chrono
+                                if(chrono%5==0){    /// Si 5 secondes sont passées
                                     for (int i = 0; i < 45; ++i) {
                                         for (int j = 0; j < 35; ++j) {
                                             if(casesMap[i][j].batimentpresent&&casesMap[i][j].niveaudebatiment<4){
@@ -214,7 +223,7 @@ void testvoiture(){
                                 }
                             }
 
-                            if (compttimer % 8 == 0) {
+                            if (compttimer % 8 == 0) {  /// A chaque 0.08 secondes
 
 
                                 al_get_keyboard_state(&keyboard_state);
@@ -386,6 +395,87 @@ void testvoiture(){
                                 al_draw_textf(PressStart35, al_map_rgb(10, 10, 10), larg/2, 20, 0, "%d", (int)chrono);
 
 
+                                /// Chemin Super Camion De Maxi Tiplouf Pompier
+
+                                bool DroiteCamion=false, GaucheCamion=false, HautCamion=false, BasCamion=false;
+                                int sensChoisi=0;
+                                int optionFinal=-1;
+                                if (sensCamion!=2 && distance+1<=44 && casesMap[distance+1][hauteur].routepresente==true){
+                                    DroiteCamion=true;
+                                    orientation=0;
+                                }
+                                if (sensCamion!=0 && hauteur+1<=34 && casesMap[distance][hauteur+1].routepresente==true){
+                                    BasCamion=true;
+                                }
+                                if (sensCamion!=3 && distance-1>=0 && casesMap[distance-1][hauteur].routepresente==true){
+                                    GaucheCamion=true;
+                                    orientation=ALLEGRO_FLIP_HORIZONTAL;
+                                }
+                                if (sensCamion!=1 && hauteur-1>=0 && casesMap[distance][hauteur-1].routepresente==true){
+                                    HautCamion=true;
+
+                                }
+                                int optionsCamion = DroiteCamion + GaucheCamion + HautCamion + BasCamion;
+
+                                sensChoisi=0;
+                                for (int i = 1; i < optionsCamion+1; i++) {
+
+                                    if (rand()%i==0){
+                                        sensChoisi=i;
+                                        i=optionsCamion+1;
+
+
+                                    }
+                                }
+                                printf("\n \n");
+                                if (HautCamion && sensChoisi!=0){
+                                    if(sensChoisi==1) {
+                                        optionFinal = 0;
+                                    }else{
+                                        sensChoisi--;
+                                    }
+                                }
+                                if (BasCamion && sensChoisi!=0){
+                                    if(sensChoisi==1) {
+                                        optionFinal = 1;
+                                    }else{
+                                        sensChoisi--;
+                                    }
+                                }
+                                if (GaucheCamion && sensChoisi!=0){
+                                    if(sensChoisi==1) {
+                                        optionFinal = 2;
+                                    }else{
+                                        sensChoisi--;
+                                    }
+                                }
+                                if (DroiteCamion && sensChoisi!=0){
+                                    if(sensChoisi==1) {
+                                        optionFinal = 3;
+                                    }else{
+                                        sensChoisi--;
+                                    }
+                                }
+
+                                switch(optionFinal){
+                                    case -1:
+                                        break;
+                                    case 0:
+                                        hauteur--;
+                                        break;
+                                    case 1:
+                                        hauteur++;
+                                        break;
+                                    case 2:
+                                        distance--;
+                                        break;
+                                    case 3:
+                                        distance++;
+                                        break;
+                                }
+                                sensCamion=optionFinal;
+
+                                al_draw_bitmap(Pompier,distance*CASE+decallagex, hauteur*CASE+decallagey,orientation );
 
                                 al_flip_display();
 
@@ -394,14 +484,28 @@ void testvoiture(){
                             break;
 
 
-
                         case ALLEGRO_EVENT_KEY_DOWN:
                             switch (event.keyboard.keycode) {
                                 case ALLEGRO_KEY_ESCAPE:
                                     finpartie = true;
                                     finjeu=true;
                                     break;
+                                case ALLEGRO_KEY_RIGHT:
+                                    distance+=1;
+                                    orientation=0;
+                                    break;
+                                case ALLEGRO_KEY_LEFT:
+                                    distance-=1;
+                                    orientation=1;
+                                    break;
+                                case ALLEGRO_KEY_UP:
+                                    hauteur-=1;
+                                    break;
+                                case ALLEGRO_KEY_DOWN:
+                                    hauteur+=1;
+                                    break;
                             }
+
                             break;
                         case ALLEGRO_EVENT_MOUSE_AXES:
                             al_get_mouse_state(&mouse_state);
@@ -432,6 +536,7 @@ void testvoiture(){
                                                 }
 
                                             }
+
                                         }
                                     }
                                     if(!batimentendessous){
