@@ -1,6 +1,7 @@
 //
 // Created by gabdu on 02/11/2022.
 #include "Gabriel.h"
+#include "Matthieu.h"
 #define CASE 40
 
 
@@ -218,9 +219,12 @@ void affichage(){
 
     for (int i = 0; i < 45; ++i) {
         for (int j = 0; j < 35; ++j) {
+            casesMap[i][j].sapin=false;
+            casesMap[i][j].niveaudebatiment=0;
+            casesMap[i][j].numerobatiment=-1;
             casesMap[i][j].typedeconstruction=AUCUNE;
             casesMap[i][j].hautgauche=false;
-            casesMap[i][j].sapin=false;
+            casesMap[i][j].nombrehabitants=0;
             casesMap[i][j].incendie=false;
 
 
@@ -229,7 +233,7 @@ void affichage(){
 
 //***************CREATION D'UNE FORET ALEATOIRE*****************
     for (int i = 0; i < 45; ++i) {
-        for (int j = 0; j < 35; ++j) {
+        for (int j = 1; j < 35; ++j) {
             if ((i - 1 >= 0 && casesMap[i - 1][j].sapin) || (i + 1 < 44 && casesMap[i + 1][j].sapin) ||
                 (j - 1 >= 0 && casesMap[i][j - 1].sapin) || (j + 1 <= 34 && casesMap[i][j + 1].sapin)) {
                 debutforet = true;
@@ -481,6 +485,29 @@ void affichage(){
                 etatjeu=PARTIE;
                 break;
             case PARTIE:
+                if(sauvegardechoisie!=0){
+                    switch (sauvegardechoisie) {
+                        case 1:
+                            fonctionrecuperationSauvgarde("Sauvegarde1", casesMap, &pokedollars, &regimepolitique);
+                            break;
+                        case 2:
+                            fonctionrecuperationSauvgarde("Sauvegarde2", casesMap, &pokedollars, &regimepolitique);
+                            break;
+                        case 3:
+                            fonctionrecuperationSauvgarde("Sauvegarde3", casesMap, &pokedollars, &regimepolitique);
+                            break;
+                        case 4:
+                            fonctionrecuperationSauvgarde("Sauvegarde4", casesMap, &pokedollars, &regimepolitique);
+                            break;
+                    }
+                    for (int i = 0; i < 45; ++i) {
+                        for (int j = 0; j < 35; ++j) {
+                            if(casesMap[i][j].hautgauche){
+                                nbhabitants+=casesMap[i][j].nombrehabitants;
+                            }
+                        }
+                    }
+                }
                 while (!finpartie){
                     ALLEGRO_EVENT event = {0};
                     al_wait_for_event(queue, &event);
@@ -544,7 +571,7 @@ void affichage(){
                                     }
                                     if(rand()%1==0&&!attaquegodzilla){
                                         attaquegodzilla=true;
-                                        ygodzilla=rand()%32;
+                                        ygodzilla=1+rand()%31;
                                         if(rand()%2==0){
                                             xgodzilla=50;
                                             sensattaque=false;
@@ -730,8 +757,8 @@ void affichage(){
                                         }
                                     }
                                 }
-
-                                al_draw_bitmap(Cataclysmes[12+(int)decalanim%4], CASE*xgodzilla+decallagex, CASE*ygodzilla+decallagey-20, sensattaque);
+                                al_draw_filled_ellipse(CASE*xgodzilla+decallagex+((sensattaque)?1:-1)*((((int)compttimer/8)%4*10)-20)+70, CASE*ygodzilla+decallagey+105, 55, 15,al_map_rgba(0, 0, 0, 80));
+                                al_draw_bitmap(Cataclysmes[12+(int)decalanim%4], CASE*xgodzilla+decallagex+((sensattaque)?1:-1)*((((int)compttimer/8)%4*10)-20), CASE*ygodzilla+decallagey-20, sensattaque);
 
                                 for (int i = 0; i < 35; ++i) {
                                     for (int j = 0; j < 45; ++j) {
@@ -775,7 +802,7 @@ void affichage(){
                                             }
                                         }
                                         if(xgodzilla ==j && ygodzilla==i-3){
-                                            al_draw_bitmap(Cataclysmes[12+(int)decalanim%4], CASE*xgodzilla+decallagex, CASE*ygodzilla+decallagey-20, sensattaque);
+                                            al_draw_bitmap(Cataclysmes[12+(int)decalanim%4], CASE*xgodzilla+decallagex+((sensattaque)?1:-1)*((((int)compttimer/8)%4*10)-20), CASE*ygodzilla+decallagey-20, sensattaque);
                                         }
                                     }
                                 }
@@ -948,8 +975,20 @@ void affichage(){
                                     }else{
                                         niveauvue=0;
                                     }
-
                                     break;
+                                case ALLEGRO_KEY_F:
+                                    fonctionSauvgarde("Sauvegarde1", casesMap, pokedollars, regimepolitique);
+                                    break;
+                                case ALLEGRO_KEY_G:
+                                    fonctionSauvgarde("Sauvegarde2", casesMap, pokedollars, regimepolitique);
+                                    break;
+                                case ALLEGRO_KEY_H:
+                                    fonctionSauvgarde("Sauvegarde3", casesMap, pokedollars, regimepolitique);
+                                    break;
+                                case ALLEGRO_KEY_J:
+                                    fonctionSauvgarde("Sauvegarde4", casesMap, pokedollars, regimepolitique);
+                                    break;
+
                             }
                             break;
                         case ALLEGRO_EVENT_MOUSE_AXES:
