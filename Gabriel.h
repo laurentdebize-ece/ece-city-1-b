@@ -31,13 +31,18 @@ typedef struct{
     bool sapin;
     int niveaudebatiment;
     int numerobatiment;
+    int numerohabitation;
     int typedeconstruction;
     bool hautgauche;
     int nombrehabitants;
     bool incendie;
+    int niveauEau;
+    int niveauElec;
+    int CentralElecAssoc;
+    int ChateauEauAssoc;
 } Cases;
 
-void calculcaseselec(ALLEGRO_MOUSE_STATE* mouse_state, Avantplan* Caseselec, float decallagex, float decallagey, float haut, bool* menujeu);
+void calculcaseselec(ALLEGRO_MOUSE_STATE* mouse_state, Avantplan* Caseselec, float decallagex, float decallagey, float haut,float larg, bool* menujeu);
 void affichage();
 
 
