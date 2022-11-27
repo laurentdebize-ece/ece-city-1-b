@@ -6,11 +6,9 @@
 #define CASE 40
 
 
-
 void affichage(){
 
     //***************DEMARRAGE ALLEGRO*****************
-
 
     assert(al_init());
     al_init_font_addon();
@@ -183,6 +181,13 @@ void affichage(){
     ALLEGRO_BITMAP *Pompierhaut=al_load_bitmap("../ImagesAnae/Camionpompierhaut.PNG");
     ALLEGRO_BITMAP *Pompierbas=al_load_bitmap("../ImagesAnae/Camionpompierbas.PNG");
 
+    //Sons
+    ALLEGRO_SAMPLE* MusiquePartie= al_load_sample("../Musique/MusiqueJeu.wav");
+    ALLEGRO_SAMPLE_ID Sample4ID;
+    ALLEGRO_SAMPLE_ID SampleMenuID;
+    ALLEGRO_SAMPLE_ID SampleJeuID;
+    al_reserve_samples(5);
+
 
 
     //***************INITIALISATION DES VARIABLES ET DES STRUCUTRES*****************
@@ -194,10 +199,10 @@ void affichage(){
     int statsapin=53;
     bool debutforet;
 
-    int etatjeu= PARTIE;
+    int etatjeu= MENUPRINCIPAL;
 
     int lieumenu=DEMARRAGE;
-    int regimepolitique=CAPITALISTE;
+    int regimepolitique=COMMUNISTE;
     int sauvegardechoisie=0;
     int blabla=1;
 
@@ -260,32 +265,15 @@ void affichage(){
     for (int i=0; i<45; i++){
         casesMap[i]= (Cases*) malloc (35 * sizeof(Cases));
     }
-
-    for (int i = 0; i < 45; ++i) {
-        for (int j = 0; j < 35; ++j) {
-            casesMap[i][j].sapin=false;
-            casesMap[i][j].niveaudebatiment=0;
-            casesMap[i][j].numerobatiment=-1;
-            casesMap[i][j].typedeconstruction=AUCUNE;
-            casesMap[i][j].hautgauche=false;
-            casesMap[i][j].nombrehabitants=0;
-            casesMap[i][j].incendie=false;
-            casesMap[i][j].niveauEau=0;
-            casesMap[i][j].niveauElec=0;
-
-
-        }
-    }
-
-
-
-
-
     //***************LANCEMENT DU JEU*****************
 
     al_start_timer(timer);
     while (!finjeu){
         switch (etatjeu) {
+
+
+            //***************ON LANCE LE MENU PRINCIPAL*****
+
             case MENUPRINCIPAL:
                 while (!finmenu){
                     ALLEGRO_EVENT event = {0};
@@ -515,6 +503,9 @@ void affichage(){
                 etatjeu=PARTIE;
                 break;
             case PARTIE:
+
+                //***************SOIT NOUVELLE PARTIE SOIS CHARGEMENT DE LA MAP DE 0*****
+
                 if(sauvegardechoisie!=0){
                     switch (sauvegardechoisie) {
                         case 1:
@@ -572,6 +563,9 @@ void affichage(){
                             casesMap[i][j].incendie=false;
                             casesMap[i][j].niveauElec=0;
                             casesMap[i][j].niveauEau=0;
+                            casesMap[i][j].ChateauEauAssoc=-1;
+                            casesMap[i][j].CentralElecAssoc=-1;
+                            casesMap[i][j].protegedufeu=0;
                         }
                     }
                     for (int i = 0; i < 45; ++i) {
@@ -608,8 +602,9 @@ void affichage(){
                 explosion=false;
                 probaattaque=5;
 
+                al_play_sample(MusiquePartie, 0.3, 0, 1, ALLEGRO_PLAYMODE_LOOP, &SampleJeuID);
 
-
+                //***************UNE FOIS L'INITIALISATION FINIE ON LANCE LA BOUCLE*****
 
                 while (!finpartie){
                     ALLEGRO_EVENT event = {0};
@@ -622,6 +617,7 @@ void affichage(){
                             if(!confirmationsauvegarde && !pause && !confirmationquitter) {
                                 if (compttimer % 100 == 0) {
                                     chrono++;
+                                    //***************INTERVENTION POMPIER*****
                                     if (chrono % 5 == 0){
                                         for (int i = 0; i < 45; ++i) {
                                             for (int j = 0; j < 35; ++j) {
@@ -631,6 +627,7 @@ void affichage(){
                                             }
                                         }
                                     }
+                                    //***************TOUS LES EFFETS AYANT LIEU A CHAQUE BOUCLE DE 15 SECONDES*****
                                     if (chrono % 15 == 0) {
                                         for (int i = 0; i < 45; ++i) {
                                             for (int j = 0; j < 35; ++j) {
@@ -680,6 +677,7 @@ void affichage(){
                                                         }
 
                                                     }
+                                                    //***************AMELIORATION DES BATIMENTS*****
                                                     if(evolutionpossible){
                                                         if (casesMap[i][j].niveaudebatiment < GRATTECIEL) {
                                                             casesMap[i][j].niveaudebatiment++;
@@ -711,7 +709,9 @@ void affichage(){
                                                                 }
                                                             }
                                                         }
-                                                    }else if (casesMap[i][j].hautgauche&& (casesMap[i][j].niveauEau<casesMap[i][j].nombrehabitants || casesMap[i][j].niveauElec<casesMap[i][j].nombrehabitants)){
+                                                    }
+                                                        //***************REGRESSION*****
+                                                    else if (casesMap[i][j].hautgauche&& (casesMap[i][j].niveauEau<casesMap[i][j].nombrehabitants || casesMap[i][j].niveauElec<casesMap[i][j].nombrehabitants)){
                                                         int sommeeau=0;
                                                         int sommeelec=0;
                                                         for (int k = 0; k < 45; ++k) {
@@ -834,6 +834,7 @@ void affichage(){
                                                             }
                                                         }
                                                     }
+                                                    //***************GENERATION D'INCENDIES*****
                                                     if (casesMap[i][j].incendie) {
                                                         casesMap[i][j].niveaudebatiment = RUINES;
                                                         if (casesMap[i][j].hautgauche) {
@@ -852,6 +853,7 @@ void affichage(){
                                                 }
                                             }
                                         }
+                                        //***************GENERATION D'ATTAQUES DE GODZILLA*****
                                         if (rand() % probaattaque == 0 && !attaquegodzilla) {
                                             attaquegodzilla = true;
                                             bool positionnonvalide=true;
@@ -888,11 +890,13 @@ void affichage(){
                                     }
                                 }
                             }
+                            //***************AFICHAGE TOUTES LES 0.08 SECONDES*****
 
                             if (compttimer % 8 == 0) {
 
                                 if(!confirmationsauvegarde && !pause && !confirmationquitter) {
 
+                                    //***************DEPLACEMENT DE LA MAP*****
                                     al_get_keyboard_state(&keyboard_state);
                                     if (al_key_down(&keyboard_state, ALLEGRO_KEY_S)) {
                                         if (decallagey > (-(1600 - haut))) {
@@ -929,6 +933,7 @@ void affichage(){
                                     }
 
 
+                                    //***************ATTAQUE DE GODZILLA*****
                                     if (attaquegodzilla && compttimer % 64 == 0) {
                                         if (!missileencours && !explosion) {
                                             for (int i = 0; i < 45; ++i) {
@@ -955,13 +960,9 @@ void affichage(){
                                                         casesMap[xgodzilla][ygodzilla + i].sapin = false;
                                                         lazergodzilla = true;
                                                     }
-
-
                                                     if (casesMap[xgodzilla][ygodzilla + i].typedeconstruction !=AUCUNE &&casesMap[xgodzilla][ygodzilla + i].typedeconstruction !=ROUTE) {
-
                                                         int tempnumerobatiment=casesMap[xgodzilla][ygodzilla + i].numerobatiment;
                                                         int tempnumerohabitation= casesMap[xgodzilla][ygodzilla + i].numerohabitation;
-
                                                         nombrebatiment--;
                                                         if(casesMap[xgodzilla][ygodzilla + i].typedeconstruction ==HABITATION){
                                                             numerohabitation--;
@@ -986,11 +987,12 @@ void affichage(){
                                                                 if(casesMap[j][k].typedeconstruction ==HABITATION && casesMap[j][k].numerohabitation>tempnumerohabitation){
                                                                     casesMap[j][k].numerohabitation--;
                                                                 }
-
                                                             }
                                                         }
-
                                                     } else if (casesMap[xgodzilla][ygodzilla + i].typedeconstruction ==ROUTE) {
+                                                        if(camionpresent&&xcamion ==xgodzilla && ycamion==ygodzilla + i){
+                                                            camionpresent=false;
+                                                        }
                                                         casesMap[xgodzilla][ygodzilla + i].typedeconstruction = AUCUNE;
                                                         nombreroutes--;
                                                         lazergodzilla = true;
@@ -1038,6 +1040,9 @@ void affichage(){
                                                             }
                                                         }
                                                     } else if (casesMap[xgodzilla + 2][ygodzilla + i].typedeconstruction ==ROUTE) {
+                                                        if(camionpresent&&xcamion ==xgodzilla+2 && ycamion==ygodzilla + i){
+                                                            camionpresent=false;
+                                                        }
                                                         casesMap[xgodzilla + 2][ygodzilla +i].typedeconstruction = AUCUNE;
                                                         nombreroutes--;
                                                         lazergodzilla = true;
@@ -1091,7 +1096,6 @@ void affichage(){
                                         if (avancementmissile == 40) {
                                             attaquegodzilla = false;
                                             missileencours = false;
-
                                         }
                                     }
                                     if (avancementmissile >= 40) {
@@ -1101,7 +1105,6 @@ void affichage(){
                                             avancementmissile = 0;
                                             decalanim = 0;
                                             xgodzilla = -5;
-
                                         }
                                     }
                                     for (int i = 0; i < 45; ++i) {
@@ -1109,11 +1112,14 @@ void affichage(){
                                             casesMap[i][j].protegedufeu=false;
                                         }
                                     }
+
+                                    //***************THEORIE DES GRAPHES !!*****
+
                                     BFSCaserne(&casesMap);
                                     BFS(&casesMap, 0);
                                     BFS(&casesMap, 1);
 
-                                    /// Chemin du Camion
+                                    //***************CHEMIN DU CAMION*****
                                     if(camionpresent && compttimer%16==0){
                                         bool DroiteCamion=false, GaucheCamion=false, HautCamion=false, BasCamion=false;
                                         int sensChoisi=0;
@@ -1150,19 +1156,17 @@ void affichage(){
                                             }
                                             optionsCamion--;
                                         }
-                                        /// Pour choix de la route au hasard
+                                        //***************ROUTE ALEATOIRE*****
                                         if(optionsCamion!=0){
                                             orientationcamion=1;
                                             sensChoisi = rand() % optionsCamion;
                                         }else{
                                             orientationcamion=0;
                                         }
-
                                         int taboption[4] = {HautCamion , BasCamion , GaucheCamion , DroiteCamion};
                                         int compteurCamion=0;
                                         for (int i = 0; i < 4; ++i) {
                                             if(taboption[i]==true){
-
                                                 if (sensChoisi == compteurCamion){
                                                     optionFinal=i;
                                                 }
@@ -1188,6 +1192,7 @@ void affichage(){
                                         sensCamion=optionFinal;
                                     }
 
+                                    //***************ON COMMENCE L'AFFICHAGE*****
 
                                     al_clear_to_color(al_map_rgb(0, 0, 0));
 
@@ -1208,6 +1213,7 @@ void affichage(){
 
                                     }
 
+                                    //***************AFFICHAGE DES CASES (ROUTES)*****
 
                                     for (int i = 0; i < 45; ++i) {
                                         for (int j = 0; j < 35; j++) {
@@ -1294,42 +1300,41 @@ void affichage(){
                                             }
                                         }
                                     }
-                                    if(camionpresent){
+                                    //***************AFFICHAGE DU CAMION*****
+                                    if(camionpresent && niveauvue==0){
                                         if(orientationcamion==0){
                                             if(sensCamion==0){
-                                                al_draw_bitmap(Pompierhaut,xcamion*CASE+decallagex, ycamion*CASE+decallagey,0 );
+                                                al_draw_bitmap(Pompierhaut,xcamion*CASE+decallagex+18, ycamion*CASE+decallagey,0 );
                                             }else if(sensCamion==1){
                                                 al_draw_bitmap(Pompierbas,xcamion*CASE+decallagex, ycamion*CASE+decallagey,0 );
                                             }else{
-                                                al_draw_bitmap(Pompiercote,xcamion*CASE+decallagex, ycamion*CASE+decallagey,((sensCamion==3) ? 0 : 1) );
+                                                al_draw_bitmap(Pompiercote,xcamion*CASE+decallagex, ycamion*CASE+decallagey+((sensCamion==3) ? 0 : -15),((sensCamion==3) ? 0 : 1) );
                                             }
                                         }else{
                                             if(sensCamion==0){
-                                                al_draw_bitmap(Pompierhaut,xcamion*CASE+decallagex, ycamion*CASE+decallagey-((((int) compttimer / 8) % 2 * 10)-20),0 );
+                                                al_draw_bitmap(Pompierhaut,xcamion*CASE+decallagex+18, ycamion*CASE+decallagey-((((int) compttimer / 8) % 2 * 10)-20),0 );
                                             }else if(sensCamion==1){
                                                 al_draw_bitmap(Pompierbas,xcamion*CASE+decallagex, ycamion*CASE+decallagey+((((int) compttimer / 8) % 2 * 10)-20),0 );
                                             }else{
-                                                al_draw_bitmap(Pompiercote,xcamion*CASE+decallagex+((sensCamion==3) ? 1 : -1) *((((int) compttimer / 8) % 2 * 10)-20), ycamion*CASE+decallagey,((sensCamion==3) ? 0 : 1) );
+                                                al_draw_bitmap(Pompiercote,xcamion*CASE+decallagex+((sensCamion==3) ? 1 : -1) *((((int) compttimer / 8) % 2 * 10)-20), ycamion*CASE+decallagey+((sensCamion==3) ? 0 : -15),((sensCamion==3) ? 0 : 1) );
                                             }
                                         }
 
 
                                     }
+                                    //***************AFFICHAGE DE GODZILLA*****
 
                                     if (attaquegodzilla) {
                                         if(niveauvue==0){
                                             al_draw_filled_ellipse(CASE * xgodzilla + decallagex +((sensattaque) ? 1 : -1) *((((int) compttimer / 16) % 4 * 10) - 30) + 65,CASE * ygodzilla + decallagey + 105, 55, 15,al_map_rgba(0, 0, 0, 80));
                                             al_draw_bitmap(Cataclysmes[12+(int)decalanim%4], CASE*xgodzilla+decallagex+((sensattaque)?1:-1)*((((int)compttimer/16)%4*10)-30), CASE*ygodzilla+decallagey-20, sensattaque);
-
                                         }else{
                                             al_draw_filled_ellipse(CASE * xgodzilla + decallagex +((sensattaque) ? 1 : -1) *((((int) compttimer / 16) % 4 * 10) - 30) + 65,CASE * ygodzilla + decallagey + 105, 55, 15,al_map_rgba(0, 0, 0, 40));
                                             al_draw_tinted_bitmap(Cataclysmes[12+(int)decalanim%4], al_map_rgba(205,205,205,40), CASE*xgodzilla+decallagex+((sensattaque)?1:-1)*((((int)compttimer/16)%4*10)-30), CASE*ygodzilla+decallagey-20, sensattaque);
-
-
                                         }
-
                                     }
 
+                                    //***************AFFICHAGE DES BATIMENTS*****
                                     for (int i = 0; i < 35; ++i) {
                                         for (int j = 0; j < 45; ++j) {
                                             if (casesMap[j][i].typedeconstruction == AUCUNE) {
@@ -1442,18 +1447,15 @@ void affichage(){
 
                                     for (int i = 0; i < 7; ++i) {
                                         if (niveauvue == 0) {
-                                            al_draw_bitmap(Bordure, decallagex - 200, decallagey + CASE * 5 * (float) i,
-                                                           0);
-                                            al_draw_bitmap(Bordure, decallagex + 1800,
-                                                           decallagey + CASE * 5 * (float) i, 0);
+                                            al_draw_bitmap(Bordure, decallagex - 200, decallagey + CASE * 5 * (float) i,0);
+                                            al_draw_bitmap(Bordure, decallagex + 1800,decallagey + CASE * 5 * (float) i, 0);
                                         } else {
-                                            al_draw_tinted_bitmap(Bordure, al_map_rgb(200, 165, 235), decallagex - 200,
-                                                                  decallagey + CASE * 5 * (float) i, 0);
-                                            al_draw_tinted_bitmap(Bordure, al_map_rgb(200, 165, 235), decallagex + 1800,
-                                                                  decallagey + CASE * 5 * (float) i, 0);
+                                            al_draw_tinted_bitmap(Bordure, al_map_rgb(200, 165, 235), decallagex - 200,decallagey + CASE * 5 * (float) i, 0);
+                                            al_draw_tinted_bitmap(Bordure, al_map_rgb(200, 165, 235), decallagex + 1800,decallagey + CASE * 5 * (float) i, 0);
                                         }
 
                                     }
+                                    //***************AFFICHAGE DU MISSILE*****
                                     if(niveauvue==0){
                                         if (missileencours && missilemontant) {
                                             al_draw_rotated_bitmap(Cataclysmes[19 + (int) decalanim % 3], 64 / 2, 45 / 2,xmissile + decallagex, ymissile + decallagey, anglecible,(avancementmissile > 10) ? ((ygodzilla * CASE + 64 >ymissilesave) ? 0 : 0) : 0);
@@ -1474,9 +1476,6 @@ void affichage(){
                                         }
                                     }
 
-
-
-
                                     //"Viseur"
                                     switch (achat) {
                                         case -1:
@@ -1496,48 +1495,32 @@ void affichage(){
                                             break;
                                     }
 
-
                                     // MiniMap
                                     if (niveauvue == 0) {
-                                        al_draw_filled_rectangle(larg - 200, 20, larg - 20, 160,
-                                                                 al_map_rgba(00, 105, 00, 200));
-
-                                        al_draw_filled_rectangle(larg - 200, 170, larg - 20, 220,
-                                                                 al_map_rgb(230, 230, 230));
-                                        al_draw_rectangle(larg - 200 - 2, 170 - 2, larg - 20 + 2, 220 + 2,
-                                                          al_map_rgb(10, 10, 10), 4);
-                                        al_draw_text(PressStart15, al_map_rgb(0, 0, 0), larg - 185, 187, 0,
-                                                     "Sauvegarde:");
-                                        al_draw_filled_rectangle(larg - 200 + 2, 230, larg - 160 + 2, 270,
-                                                                 al_map_rgb(230, 230, 230));
-                                        al_draw_filled_rectangle(larg - 155 + 2, 230, larg - 115 + 2, 270,
-                                                                 al_map_rgb(230, 230, 230));
-                                        al_draw_filled_rectangle(larg - 110 + 2, 230, larg - 70 + 2, 270,
-                                                                 al_map_rgb(230, 230, 230));
-                                        al_draw_filled_rectangle(larg - 65 + 2, 230, larg - 25 + 2, 270,
-                                                                 al_map_rgb(230, 230, 230));
-                                        al_draw_rectangle(larg - 200 + 2, 230, larg - 160 + 2, 270,
-                                                          al_map_rgb(10, 10, 10), 2);
-                                        al_draw_rectangle(larg - 155 + 2, 230, larg - 115 + 2, 270,
-                                                          al_map_rgb(10, 10, 10), 2);
-                                        al_draw_rectangle(larg - 110 + 2, 230, larg - 70 + 2, 270,
-                                                          al_map_rgb(10, 10, 10), 2);
-                                        al_draw_rectangle(larg - 65 + 2, 230, larg - 25 + 2, 270,
-                                                          al_map_rgb(10, 10, 10), 2);
+                                        al_draw_filled_rectangle(larg - 200, 20, larg - 20, 160,al_map_rgba(00, 105, 00, 200));
+                                        al_draw_filled_rectangle(larg - 200, 170, larg - 20, 220,al_map_rgb(230, 230, 230));
+                                        al_draw_rectangle(larg - 200 - 2, 170 - 2, larg - 20 + 2, 220 + 2,al_map_rgb(10, 10, 10), 4);
+                                        al_draw_text(PressStart15, al_map_rgb(0, 0, 0), larg - 185, 187, 0,"Sauvegarde:");
+                                        al_draw_filled_rectangle(larg - 200 + 2, 230, larg - 160 + 2, 270,al_map_rgb(230, 230, 230));
+                                        al_draw_filled_rectangle(larg - 155 + 2, 230, larg - 115 + 2, 270,al_map_rgb(230, 230, 230));
+                                        al_draw_filled_rectangle(larg - 110 + 2, 230, larg - 70 + 2, 270,al_map_rgb(230, 230, 230));
+                                        al_draw_filled_rectangle(larg - 65 + 2, 230, larg - 25 + 2, 270,al_map_rgb(230, 230, 230));
+                                        al_draw_rectangle(larg - 200 + 2, 230, larg - 160 + 2, 270,al_map_rgb(10, 10, 10), 2);
+                                        al_draw_rectangle(larg - 155 + 2, 230, larg - 115 + 2, 270,al_map_rgb(10, 10, 10), 2);
+                                        al_draw_rectangle(larg - 110 + 2, 230, larg - 70 + 2, 270,al_map_rgb(10, 10, 10), 2);
+                                        al_draw_rectangle(larg - 65 + 2, 230, larg - 25 + 2, 270,al_map_rgb(10, 10, 10), 2);
                                         al_draw_text(PressStart15, al_map_rgb(0, 0, 0), larg - 185, 245, 0, "1");
                                         al_draw_text(PressStart15, al_map_rgb(0, 0, 0), larg - 140, 245, 0, "2");
                                         al_draw_text(PressStart15, al_map_rgb(0, 0, 0), larg - 95, 245, 0, "3");
                                         al_draw_text(PressStart15, al_map_rgb(0, 0, 0), larg - 50, 245, 0, "4");
                                     } else {
-                                        al_draw_filled_rectangle(larg - 200, 20, larg - 20, 160,
-                                                                 al_map_rgba(105, 105, 105, 200));
+                                        al_draw_filled_rectangle(larg - 200, 20, larg - 20, 160,al_map_rgba(105, 105, 105, 200));
                                     }
                                     if(probaattaque==1){
                                         al_draw_bitmap(RampageLogo, larg-82, 280,0);
                                     }
 
-                                    al_draw_rectangle(larg - 200 - 2, 20 - 2, larg - 20 + 2, 160 + 2,
-                                                      al_map_rgba(0, 050, 00, 255), 4);
+                                    al_draw_rectangle(larg - 200 - 2, 20 - 2, larg - 20 + 2, 160 + 2,al_map_rgba(0, 050, 00, 255), 4);
                                     for (int i = 0; i < 45; i++) {
                                         for (int j = 0; j < 35; j++) {
                                             switch (casesMap[i][j].typedeconstruction) {
@@ -1598,18 +1581,11 @@ void affichage(){
                                         dizaine = dizaine / 10;
                                         decallageimage++;
                                     }
-                                    al_draw_filled_rectangle(larg / 2 - 17.5 * decallageimage + 30, 15,
-                                                             larg / 2 + 17.5 * decallageimage + 40, 60,
-                                                             al_map_rgb(235, 235, 235));
-                                    al_draw_rectangle(larg / 2 - 17.5 * decallageimage + 30, 15,
-                                                      larg / 2 + 17.5 * decallageimage + 40, 60, al_map_rgb(30, 30, 30),
-                                                      4);
-                                    al_draw_textf(PressStart35, al_map_rgb(10, 10, 10),
-                                                  larg / 2 - 17.5 * decallageimage + 35, 20, 0, "%d", (int) chrono);
-
+                                    al_draw_filled_rectangle(larg / 2 - 17.5 * decallageimage + 30, 15,larg / 2 + 17.5 * decallageimage + 40, 60,al_map_rgb(235, 235, 235));
+                                    al_draw_rectangle(larg / 2 - 17.5 * decallageimage + 30, 15,larg / 2 + 17.5 * decallageimage + 40, 60, al_map_rgb(30, 30, 30),4);
+                                    al_draw_textf(PressStart35, al_map_rgb(10, 10, 10),larg / 2 - 17.5 * decallageimage + 35, 20, 0, "%d", (int) chrono);
                                     al_draw_filled_rectangle(0, 60, 200, haut - 60, al_map_rgb(235, 235, 235));
                                     al_draw_rectangle(0, 58, 202, haut - 58, al_map_rgb(30, 30, 30), 4);
-
                                     al_draw_text(PressStart15, al_map_rgb(30, 30, 30), 15, 85, 0, ("Pokedollars: "));
                                     dizaine = pokedollars;
                                     decallageimage = 0;
@@ -1617,8 +1593,7 @@ void affichage(){
                                         dizaine = dizaine / 10;
                                         decallageimage++;
                                     }
-                                    al_draw_textf(PressStart20, al_map_rgb(30, 30, 30), 100 - decallageimage * 10, 120,
-                                                  0, ("%d"), pokedollars);
+                                    al_draw_textf(PressStart20, al_map_rgb(30, 30, 30), 100 - decallageimage * 10, 120,0, ("%d"), pokedollars);
 
                                     al_draw_text(PressStart15, al_map_rgb(30, 30, 30), 10, 165, 0, ("Nb Habitants:"));
                                     dizaine = nbhabitants;
@@ -1627,9 +1602,7 @@ void affichage(){
                                         dizaine = dizaine / 10;
                                         decallageimage++;
                                     }
-                                    al_draw_textf(PressStart20, al_map_rgb(30, 30, 30), 100 - decallageimage * 10, 195,
-                                                  0, ("%d"), nbhabitants);
-
+                                    al_draw_textf(PressStart20, al_map_rgb(30, 30, 30), 100 - decallageimage * 10, 195,0, ("%d"), nbhabitants);
 
                                     if (niveauvue == 0) {
                                         al_draw_bitmap(BoutonMenuJeu[ROUTE], 15, 240, 0);
@@ -1646,7 +1619,6 @@ void affichage(){
                                         al_draw_rectangle(104, 419, 186, 501, al_map_rgb(10, 10 ,10), 2);
                                         al_draw_text(PressStart15, al_map_rgb(30, 30, 30), 10, 520, 0,("Achat actuel:"));
                                         al_draw_rectangle(59, 549, 141, 631, al_map_rgb(10, 10 ,10), 2);
-
                                         if (achat == -1) {
                                             al_draw_filled_rectangle(60, 550, 140, 630, al_map_rgb(0, 0, 0));
                                             al_draw_bitmap(BoutonMenuJeu[7], 50, 645, 0);
@@ -1654,48 +1626,32 @@ void affichage(){
                                             al_draw_bitmap(BoutonMenuJeu[achat], 60, 550, 0);
                                             al_draw_bitmap(BoutonMenuJeu[8], 50, 645, 0);
                                         }
-
-                                        if (mouse_state.x >= 15 && mouse_state.x <= 95 && mouse_state.y >= 240 - 5 &&
-                                            mouse_state.y <= 320 - 5) {
+                                        if (mouse_state.x >= 15 && mouse_state.x <= 95 && mouse_state.y >= 240 - 5 &&mouse_state.y <= 320 - 5) {
                                             al_draw_filled_rectangle(15, 240, 95, 320, al_map_rgba(0, 0, 0, 40));
-                                        } else if (mouse_state.x >= 105 && mouse_state.x <= 185 &&
-                                                   mouse_state.y >= 240 - 5 && mouse_state.y <= 320 - 5) {
+                                        } else if (mouse_state.x >= 105 && mouse_state.x <= 185 &&mouse_state.y >= 240 - 5 && mouse_state.y <= 320 - 5) {
                                             al_draw_filled_rectangle(105, 240, 185, 320, al_map_rgba(0, 0, 0, 40));
-                                        } else if (mouse_state.x >= 15 && mouse_state.x <= 95 &&
-                                                   mouse_state.y >= 310 - 5 && mouse_state.y <= 410 - 5) {
+                                        } else if (mouse_state.x >= 15 && mouse_state.x <= 95 &&mouse_state.y >= 310 - 5 && mouse_state.y <= 410 - 5) {
                                             al_draw_filled_rectangle(15, 330, 95, 410, al_map_rgba(0, 0, 0, 40));
-                                        } else if (mouse_state.x >= 105 && mouse_state.x <= 185 &&
-                                                   mouse_state.y >= 310 - 5 && mouse_state.y <= 410 - 5) {
+                                        } else if (mouse_state.x >= 105 && mouse_state.x <= 185 &&mouse_state.y >= 310 - 5 && mouse_state.y <= 410 - 5) {
                                             al_draw_filled_rectangle(105, 330, 185, 410, al_map_rgba(0, 0, 0, 40));
-                                        } else if (mouse_state.x >= 15 && mouse_state.x <= 95 &&
-                                                   mouse_state.y >= 420 - 5 && mouse_state.y <= 500 - 5) {
+                                        } else if (mouse_state.x >= 15 && mouse_state.x <= 95 &&mouse_state.y >= 420 - 5 && mouse_state.y <= 500 - 5) {
                                             al_draw_filled_rectangle(15, 420, 95, 500, al_map_rgba(0, 0, 0, 40));
-                                        } else if (mouse_state.x >= 105 && mouse_state.x <= 185 &&
-                                                   mouse_state.y >= 420 - 5 && mouse_state.y <= 500 - 5) {
+                                        } else if (mouse_state.x >= 105 && mouse_state.x <= 185 &&mouse_state.y >= 420 - 5 && mouse_state.y <= 500 - 5) {
                                             al_draw_filled_rectangle(105, 420, 185, 500, al_map_rgba(0, 0, 0, 40));
-                                        } else if (mouse_state.x >= 50 && mouse_state.x <= 150 &&
-                                                   mouse_state.y >= 645 - 5 && mouse_state.y <= 695 - 5) {
+                                        } else if (mouse_state.x >= 50 && mouse_state.x <= 150 &&mouse_state.y >= 645 - 5 && mouse_state.y <= 695 - 5) {
                                             al_draw_filled_rectangle(50, 645, 150, 695, al_map_rgba(0, 0, 0, 40));
-                                        } else if (mouse_state.x >= larg - 200 + 2 && mouse_state.x <= larg - 160 + 2 &&
-                                                   mouse_state.y >= 230 - 5 && mouse_state.y <= 270 - 5) {
-                                            al_draw_filled_rectangle(larg - 200 + 2, 230, larg - 160 + 2, 270,
-                                                                     al_map_rgba(0, 0, 0, 40));
-                                        } else if (mouse_state.x >= larg - 155 + 2 && mouse_state.x <= larg - 115 + 2 &&
-                                                   mouse_state.y >= 230 - 5 && mouse_state.y <= 270 - 5) {
-                                            al_draw_filled_rectangle(larg - 155 + 2, 230, larg - 115 + 2, 270,
-                                                                     al_map_rgba(0, 0, 0, 40));
-                                        } else if (mouse_state.x >= larg - 110 + 2 && mouse_state.x <= larg - 70 + 2 &&
-                                                   mouse_state.y >= 230 - 5 && mouse_state.y <= 270 - 5) {
-                                            al_draw_filled_rectangle(larg - 110 + 2, 230, larg - 70 + 2, 270,
-                                                                     al_map_rgba(0, 0, 0, 40));
-                                        } else if (mouse_state.x >= larg - 65 + 2 && mouse_state.x <= larg - 25 + 2 &&
-                                                   mouse_state.y >= 230 - 5 && mouse_state.y <= 270 - 5) {
-                                            al_draw_filled_rectangle(larg - 65 + 2, 230, larg - 25 + 2, 270,
-                                                                     al_map_rgba(0, 0, 0, 40));
+                                        } else if (mouse_state.x >= larg - 200 + 2 && mouse_state.x <= larg - 160 + 2 &&mouse_state.y >= 230 - 5 && mouse_state.y <= 270 - 5) {
+                                            al_draw_filled_rectangle(larg - 200 + 2, 230, larg - 160 + 2, 270,al_map_rgba(0, 0, 0, 40));
+                                        } else if (mouse_state.x >= larg - 155 + 2 && mouse_state.x <= larg - 115 + 2 &&mouse_state.y >= 230 - 5 && mouse_state.y <= 270 - 5) {
+                                            al_draw_filled_rectangle(larg - 155 + 2, 230, larg - 115 + 2, 270,al_map_rgba(0, 0, 0, 40));
+                                        } else if (mouse_state.x >= larg - 110 + 2 && mouse_state.x <= larg - 70 + 2 &&mouse_state.y >= 230 - 5 && mouse_state.y <= 270 - 5) {
+                                            al_draw_filled_rectangle(larg - 110 + 2, 230, larg - 70 + 2, 270,al_map_rgba(0, 0, 0, 40));
+                                        } else if (mouse_state.x >= larg - 65 + 2 && mouse_state.x <= larg - 25 + 2 &&mouse_state.y >= 230 - 5 && mouse_state.y <= 270 - 5) {
+                                            al_draw_filled_rectangle(larg - 65 + 2, 230, larg - 25 + 2, 270,al_map_rgba(0, 0, 0, 40));
                                         }
-
                                     }
                                 }
+                                //***************AFFICHAGES DES CONFIRMATIONS*****
                                 if(confirmationsauvegarde){
                                     al_draw_filled_rectangle(larg/2-280, haut/2-140, larg/2 +280, haut/2+120,al_map_rgb(255, 255, 255)  );
                                     al_draw_rectangle(larg/2-280, haut/2-140, larg/2 +280, haut/2+120,al_map_rgb(10, 10, 10) , 4);
@@ -1729,7 +1685,6 @@ void affichage(){
                                     al_draw_rectangle(larg/2-150, haut/2-50, larg/2 +150, haut/2+50,al_map_rgb(10, 10, 10) , 4);
                                     al_draw_text(PressStart35, al_map_rgb(0, 0, 40), larg/2-85, haut/2-20,0, "PAUSE ");
                                 }
-
 
                                 al_flip_display();
                             }
@@ -1774,8 +1729,6 @@ void affichage(){
                                         }
                                     }
                                     break;
-
-
                             }
                             break;
                         case ALLEGRO_EVENT_MOUSE_AXES:
@@ -1854,11 +1807,11 @@ void affichage(){
                                     confirmationquitter=false;
                                     confirmationsauvegarde=false;
                                     pause=false;
+                                    al_stop_sample(&SampleJeuID);
                                 }else if(mouse_state.x>=larg/2+20 && mouse_state.x<=larg/2+100 && mouse_state.y>=haut/2+50-5 && mouse_state.y<=haut/2+105-5){
                                     confirmationquitter=false;
                                 }
                             }else if (achat!=(-1)&&niveauvue==0 && !pause && !confirmationsauvegarde){
-
                                 if(achat==ROUTE) {
                                     if(Caseselec.numcolonne<45&&casesMap[Caseselec.numcolonne][Caseselec.numligne].typedeconstruction==AUCUNE &&pokedollars>=10 ) {
                                         casesMap[Caseselec.numcolonne][Caseselec.numligne].typedeconstruction=ROUTE;
@@ -1872,10 +1825,7 @@ void affichage(){
                                                 ycamion=Caseselec.numligne;
                                             }
                                         }
-
                                         nombreroutes++;
-
-
                                     }else if(Caseselec.numcolonne<45&&casesMap[Caseselec.numcolonne][Caseselec.numligne].typedeconstruction==ROUTE){
                                         if(camionpresent&&xcamion ==Caseselec.numcolonne && ycamion==Caseselec.numligne){
                                             camionpresent=false;
@@ -1968,15 +1918,10 @@ void affichage(){
                                                 }
                                             }
                                             casesMap[Caseselec.numcolonne][Caseselec.numligne].hautgauche=true;
-
-
                                         }
                                     }
                                 }
                             }
-
-
-
                             break;
                     }
                 }
