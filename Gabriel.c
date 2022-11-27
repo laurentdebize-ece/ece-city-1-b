@@ -183,7 +183,10 @@ void affichage(){
 
     //Sons
     ALLEGRO_SAMPLE* MusiquePartie= al_load_sample("../Musique/MusiqueJeu.wav");
+    ALLEGRO_SAMPLE* MusiqueMenu= al_load_sample("../Musique/MusiqueMenu.wav");
+    ALLEGRO_SAMPLE* GodzillaStomp= al_load_sample("../Musique/GodzillaStomp.wav");
     ALLEGRO_SAMPLE_ID Sample4ID;
+    ALLEGRO_SAMPLE_ID SampledGodzillaID;
     ALLEGRO_SAMPLE_ID SampleMenuID;
     ALLEGRO_SAMPLE_ID SampleJeuID;
     al_reserve_samples(5);
@@ -268,6 +271,7 @@ void affichage(){
     //***************LANCEMENT DU JEU*****************
 
     al_start_timer(timer);
+    al_play_sample(MusiqueMenu, 0.7, 0, 1, ALLEGRO_PLAYMODE_LOOP, &SampleMenuID);
     while (!finjeu){
         switch (etatjeu) {
 
@@ -402,6 +406,7 @@ void affichage(){
                                         }
                                     }
                                 }
+
                                 al_flip_display();
                             }
                             break;
@@ -442,6 +447,7 @@ void affichage(){
                                             finpartie =true;
                                             finmenu=true;
                                             finjeu=true;
+                                            al_stop_sample(&SampleMenuID);
                                         }
                                         break;
                                     case CHOIXREGIME:
@@ -452,6 +458,7 @@ void affichage(){
                                             regimepolitique=COMMUNISTE;
                                             compttimer=0;
                                             sauvegardechoisie=0;
+                                            al_stop_sample(&SampleMenuID);
                                         }else if(mouse_state.x>=larg/2-200 && mouse_state.x<=larg/2+200 && mouse_state.y>=haut/2+54-5 && mouse_state.y <=haut/2+220-5){
                                             finpartie = false;
                                             finmenu=true;
@@ -459,6 +466,7 @@ void affichage(){
                                             regimepolitique=CAPITALISTE;
                                             compttimer=0;
                                             sauvegardechoisie=0;
+                                            al_stop_sample(&SampleMenuID);
                                         }
                                         else if(mouse_state.x>=larg/2-100 && mouse_state.x<=larg/2+100 && mouse_state.y>=haut/2+260-5 && mouse_state.y <=haut/2+342-5){
                                             lieumenu=DEMARRAGE;
@@ -471,24 +479,28 @@ void affichage(){
                                             etatjeu=PARTIE;
                                             sauvegardechoisie=1;
                                             compttimer=0;
+                                            al_stop_sample(&SampleMenuID);
                                         }else if(mouse_state.x>=larg/2+10 && mouse_state.x<=larg/2+410 && mouse_state.y>=haut/2-140-5 && mouse_state.y <=haut/2+26-5){
                                             finpartie = false;
                                             finmenu=true;
                                             etatjeu=PARTIE;
                                             sauvegardechoisie=2;
                                             compttimer=0;
+                                            al_stop_sample(&SampleMenuID);
                                         }else if(mouse_state.x>=larg/2-410 && mouse_state.x<=larg/2+10 && mouse_state.y>=haut/2+54-5 && mouse_state.y <=haut/2+220-5){
                                             finpartie = false;
                                             finmenu=true;
                                             etatjeu=PARTIE;
                                             sauvegardechoisie=3;
                                             compttimer=0;
+                                            al_stop_sample(&SampleMenuID);
                                         }else if(mouse_state.x>=larg/2+10 && mouse_state.x<=larg/2+410 && mouse_state.y>=haut/2+54-5 && mouse_state.y <=haut/2+220-5){
                                             finpartie = false;
                                             finmenu=true;
                                             etatjeu=PARTIE;
                                             sauvegardechoisie=4;
                                             compttimer=0;
+                                            al_stop_sample(&SampleMenuID);
                                         }
                                         else if(mouse_state.x>=larg/2-100 && mouse_state.x<=larg/2+100 && mouse_state.y>=haut/2+260-5 && mouse_state.y <=haut/2+342-5){
                                             lieumenu=DEMARRAGE;
@@ -602,7 +614,7 @@ void affichage(){
                 explosion=false;
                 probaattaque=5;
 
-                al_play_sample(MusiquePartie, 0.3, 0, 1, ALLEGRO_PLAYMODE_LOOP, &SampleJeuID);
+                al_play_sample(MusiquePartie, 0.7, 0, 1, ALLEGRO_PLAYMODE_LOOP, &SampleJeuID);
 
                 //***************UNE FOIS L'INITIALISATION FINIE ON LANCE LA BOUCLE*****
 
@@ -892,6 +904,14 @@ void affichage(){
                             }
                             //***************AFICHAGE TOUTES LES 0.08 SECONDES*****
 
+                            if(compttimer%112==0){
+                                if(attaquegodzilla){
+                                    al_play_sample(GodzillaStomp, ((float)((xgodzilla>larg/2)?larg-xgodzilla: xgodzilla)/(larg/2)*0.7+((float)((ygodzilla>haut/2)?haut-ygodzilla: ygodzilla)/(haut/2))*0.3), 0, 1, ALLEGRO_PLAYMODE_ONCE, &SampledGodzillaID);
+
+                                    printf("%d \n",((float)((xgodzilla>larg/2)?larg-xgodzilla: xgodzilla)/(larg/2)*0.7+((float)((ygodzilla>haut/2)?haut-ygodzilla: ygodzilla)/(haut/2))*0.3));
+                                }
+
+                            }
                             if (compttimer % 8 == 0) {
 
                                 if(!confirmationsauvegarde && !pause && !confirmationquitter) {
@@ -953,6 +973,7 @@ void affichage(){
                                             xgodzilla--;
                                             if (xgodzilla <= -5) {
                                                 attaquegodzilla = false;
+                                                al_stop_sample(&SampledGodzillaID);
                                             }
                                             for (int i = 0; i < 3; ++i) {
                                                 if (xgodzilla >= 0 && xgodzilla <= 44 && ygodzilla + i <= 34 &&ygodzilla + i >= 0) {
@@ -1003,6 +1024,7 @@ void affichage(){
                                             xgodzilla++;
                                             if (xgodzilla >= 50) {
                                                 attaquegodzilla = false;
+                                                al_stop_sample(&SampledGodzillaID);
                                             }
                                             for (int i = 0; i < 3; ++i) {
                                                 if (xgodzilla + 2 <= 44 && xgodzilla + 2 >= 0 && ygodzilla + i >= 0 &&ygodzilla + i <= 34) {
@@ -1095,6 +1117,7 @@ void affichage(){
                                         }
                                         if (avancementmissile == 40) {
                                             attaquegodzilla = false;
+                                            al_stop_sample(&SampledGodzillaID);
                                             missileencours = false;
                                         }
                                     }
@@ -1808,6 +1831,7 @@ void affichage(){
                                     confirmationsauvegarde=false;
                                     pause=false;
                                     al_stop_sample(&SampleJeuID);
+                                    al_play_sample(MusiqueMenu, 0.7, 0, 1, ALLEGRO_PLAYMODE_LOOP, &SampleMenuID);
                                 }else if(mouse_state.x>=larg/2+20 && mouse_state.x<=larg/2+100 && mouse_state.y>=haut/2+50-5 && mouse_state.y<=haut/2+105-5){
                                     confirmationquitter=false;
                                 }
