@@ -185,6 +185,7 @@ void affichage(){
     ALLEGRO_SAMPLE* MusiquePartie= al_load_sample("../Musique/MusiqueJeu.wav");
     ALLEGRO_SAMPLE* MusiqueMenu= al_load_sample("../Musique/MusiqueMenu.wav");
     ALLEGRO_SAMPLE* GodzillaStomp= al_load_sample("../Musique/GodzillaStomp.wav");
+    ALLEGRO_SAMPLE* SonBoutonGeneral= al_load_sample("../Musique/SonBoutonGeneral.wav");
     ALLEGRO_SAMPLE_ID Sample4ID;
     ALLEGRO_SAMPLE_ID SampledGodzillaID;
     ALLEGRO_SAMPLE_ID SampleMenuID;
@@ -424,6 +425,7 @@ void affichage(){
                             al_get_mouse_state(&mouse_state);
                             break;
                         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+                            al_play_sample(SonBoutonGeneral, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, &Sample4ID);
                             al_get_mouse_state(&mouse_state);
                             if(blabla>=1&&animation==false){
                                 blabla++;
@@ -906,9 +908,7 @@ void affichage(){
 
                             if(compttimer%112==0){
                                 if(attaquegodzilla){
-                                    al_play_sample(GodzillaStomp, ((float)((xgodzilla>larg/2)?larg-xgodzilla: xgodzilla)/(larg/2)*0.7+((float)((ygodzilla>haut/2)?haut-ygodzilla: ygodzilla)/(haut/2))*0.3), 0, 1, ALLEGRO_PLAYMODE_ONCE, &SampledGodzillaID);
-
-                                    printf("%d \n",((float)((xgodzilla>larg/2)?larg-xgodzilla: xgodzilla)/(larg/2)*0.7+((float)((ygodzilla>haut/2)?haut-ygodzilla: ygodzilla)/(haut/2))*0.3));
+                                    al_play_sample(GodzillaStomp, ((float)((xgodzilla*CASE+decallagex>larg/2)?larg-xgodzilla*CASE+decallagex: xgodzilla*CASE+decallagex)/(larg/2)*0.7+((float)((ygodzilla*CASE+decallagey>haut/2)?haut-ygodzilla*CASE+decallagey: ygodzilla*CASE+decallagey)/(haut/2))*0.3), 0, 1, ALLEGRO_PLAYMODE_ONCE, &SampledGodzillaID);
                                 }
 
                             }
