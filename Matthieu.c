@@ -6,8 +6,8 @@
 
 
 
-void fonctionSauvegarde (char *fichier, Cases** cases, int pokedollars, bool regimepolitique){
-    FILE *ifs = fopen(fichier, "w+");
+void fonctionSauvgarde (char *fichier, Cases** cases, int pokedollars, bool regimepolitique){
+    FILE *ifs = fopen("Sauvegarde1", "w+");
     fprintf(ifs, "%d \n", pokedollars);
     fprintf(ifs, "%d \n", regimepolitique);
     for (int i = 0; i < 45; i++ ){
@@ -24,8 +24,8 @@ void fonctionSauvegarde (char *fichier, Cases** cases, int pokedollars, bool reg
     fclose(ifs);
 }
 
-void fonctionrecuperationSauvegarde (char *fichier, Cases** cases, int* pokedollars, int* regimepolitique){
-    FILE *ifs = fopen(fichier, "r");
+void fonctionrecuperationSauvgarde (char *fichier, Cases** cases, int* pokedollars, int* regimepolitique){
+    FILE *ifs = fopen("Sauvegarde1", "r");
     fscanf(ifs, "%d \n", pokedollars);
     fscanf(ifs, "%d \n", regimepolitique);
     for (int i = 0; i < 45; i++ ){
