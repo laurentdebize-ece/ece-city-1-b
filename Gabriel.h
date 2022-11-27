@@ -40,6 +40,7 @@ typedef struct{
     int niveauElec;
     int CentralElecAssoc;
     int ChateauEauAssoc;
+    bool protegedufeu;
 } Cases;
 
 void calculcaseselec(ALLEGRO_MOUSE_STATE* mouse_state, Avantplan* Caseselec, float decallagex, float decallagey, float haut,float larg, bool* menujeu);

@@ -178,6 +178,10 @@ void affichage(){
     ALLEGRO_BITMAP* Revenir=al_load_bitmap("../ImagesMenuStart/Revenir.PNG");
     ALLEGRO_BITMAP* PokeCityLogo=al_load_bitmap("../ImagesMenuStart/PokeCityLogo.PNG");
     ALLEGRO_BITMAP* FondMenu=al_load_bitmap("../ImagesMenuStart/FondMenu.PNG");
+    ALLEGRO_BITMAP* RampageLogo=al_load_bitmap("../Cataclysmes/RampageLogo.PNG");
+    ALLEGRO_BITMAP *Pompiercote=al_load_bitmap("../ImagesAnae/Camionpompiercote.PNG");
+    ALLEGRO_BITMAP *Pompierhaut=al_load_bitmap("../ImagesAnae/Camionpompierhaut.PNG");
+    ALLEGRO_BITMAP *Pompierbas=al_load_bitmap("../ImagesAnae/Camionpompierbas.PNG");
 
 
 
@@ -214,9 +218,10 @@ void affichage(){
     int achat=-1;
     int nbhabitants=0;
     int niveauvue=0;
+    int nombreroutes=0;
+
     bool attaquegodzilla=false;
     bool sensattaque=false;
-
     int xgodzilla=-50;
     int ygodzilla=-50;
     float xmissile=0;
@@ -228,11 +233,18 @@ void affichage(){
     float anglecible=-3.1415/2;
     bool lazergodzilla=false;
     bool explosion=false;
+    int probaattaque=5;
 
     bool confirmationsauvegarde=false;
     bool confirmationquitter=false;
 
     bool pause=false;
+
+    int xcamion=0;
+    int ycamion=0;
+    int sensCamion=0;
+    int orientationcamion=0;
+    bool camionpresent=false;
 
 
 
@@ -526,6 +538,9 @@ void affichage(){
                                     numerohabitation++;
                                     casesMap[i][j].numerohabitation=numerohabitation;
                                 }
+                                if(casesMap[i][j].typedeconstruction==ROUTE){
+                                    nombreroutes++;
+                                }
                                 nbhabitants+=casesMap[i][j].nombrehabitants;
                                 nombrebatiment++;
                             }
@@ -591,6 +606,7 @@ void affichage(){
                 anglecible=-3.1415/2;
                 lazergodzilla=false;
                 explosion=false;
+                probaattaque=5;
 
 
 
@@ -606,7 +622,16 @@ void affichage(){
                             if(!confirmationsauvegarde && !pause && !confirmationquitter) {
                                 if (compttimer % 100 == 0) {
                                     chrono++;
-                                    if (chrono % 10 == 0) {
+                                    if (chrono % 5 == 0){
+                                        for (int i = 0; i < 45; ++i) {
+                                            for (int j = 0; j < 35; ++j) {
+                                                if(casesMap[i][j].hautgauche&&casesMap[i][j].incendie&&casesMap[i][j].protegedufeu){
+                                                    casesMap[i][j].incendie=false;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (chrono % 15 == 0) {
                                         for (int i = 0; i < 45; ++i) {
                                             for (int j = 0; j < 35; ++j) {
                                                 if (casesMap[i][j].typedeconstruction == HABITATION) {
@@ -827,7 +852,7 @@ void affichage(){
                                                 }
                                             }
                                         }
-                                        if (rand() % 1 == 0 && !attaquegodzilla) {
+                                        if (rand() % probaattaque == 0 && !attaquegodzilla) {
                                             attaquegodzilla = true;
                                             bool positionnonvalide=true;
                                             while(positionnonvalide){
@@ -967,6 +992,7 @@ void affichage(){
 
                                                     } else if (casesMap[xgodzilla][ygodzilla + i].typedeconstruction ==ROUTE) {
                                                         casesMap[xgodzilla][ygodzilla + i].typedeconstruction = AUCUNE;
+                                                        nombreroutes--;
                                                         lazergodzilla = true;
                                                     }
                                                 }
@@ -1013,6 +1039,7 @@ void affichage(){
                                                         }
                                                     } else if (casesMap[xgodzilla + 2][ygodzilla + i].typedeconstruction ==ROUTE) {
                                                         casesMap[xgodzilla + 2][ygodzilla +i].typedeconstruction = AUCUNE;
+                                                        nombreroutes--;
                                                         lazergodzilla = true;
                                                     }
                                                 }
@@ -1077,9 +1104,90 @@ void affichage(){
 
                                         }
                                     }
-
+                                    for (int i = 0; i < 45; ++i) {
+                                        for (int j = 0; j < 35; ++j) {
+                                            casesMap[i][j].protegedufeu=false;
+                                        }
+                                    }
+                                    BFSCaserne(&casesMap);
                                     BFS(&casesMap, 0);
                                     BFS(&casesMap, 1);
+
+                                    /// Chemin du Camion
+                                    if(camionpresent && compttimer%16==0){
+                                        bool DroiteCamion=false, GaucheCamion=false, HautCamion=false, BasCamion=false;
+                                        int sensChoisi=0;
+                                        int optionFinal=-1;
+                                        if (xcamion+1<=44 && casesMap[xcamion+1][ycamion].typedeconstruction==ROUTE){
+                                            DroiteCamion=true;
+                                            orientationcamion=0;
+                                        }
+                                        if (ycamion+1<=34 && casesMap[xcamion][ycamion+1].typedeconstruction==ROUTE){
+                                            BasCamion=true;
+                                        }
+                                        if ( xcamion-1>=0 && casesMap[xcamion-1][ycamion].typedeconstruction==ROUTE){
+                                            GaucheCamion=true;
+                                            orientationcamion=ALLEGRO_FLIP_HORIZONTAL;
+                                        }
+                                        if (ycamion-1>=0 && casesMap[xcamion][ycamion-1].typedeconstruction==ROUTE){
+                                            HautCamion=true;
+                                        }
+                                        int optionsCamion = DroiteCamion + GaucheCamion + HautCamion + BasCamion;
+                                        if(optionsCamion>1){
+                                            switch (sensCamion) {
+                                                case 0:
+                                                    BasCamion=false;
+                                                    break;
+                                                case 1:
+                                                    HautCamion=false;
+                                                    break;
+                                                case 2:
+                                                    DroiteCamion=false;
+                                                    break;
+                                                case 3:
+                                                    GaucheCamion=false;
+                                                    break;
+                                            }
+                                            optionsCamion--;
+                                        }
+                                        /// Pour choix de la route au hasard
+                                        if(optionsCamion!=0){
+                                            orientationcamion=1;
+                                            sensChoisi = rand() % optionsCamion;
+                                        }else{
+                                            orientationcamion=0;
+                                        }
+
+                                        int taboption[4] = {HautCamion , BasCamion , GaucheCamion , DroiteCamion};
+                                        int compteurCamion=0;
+                                        for (int i = 0; i < 4; ++i) {
+                                            if(taboption[i]==true){
+
+                                                if (sensChoisi == compteurCamion){
+                                                    optionFinal=i;
+                                                }
+                                                compteurCamion++;
+                                            }
+                                        }
+                                        switch(optionFinal){
+                                            case -1:
+                                                break;
+                                            case 0:
+                                                ycamion--;
+                                                break;
+                                            case 1:
+                                                ycamion++;
+                                                break;
+                                            case 2:
+                                                xcamion--;
+                                                break;
+                                            case 3:
+                                                xcamion++;
+                                                break;
+                                        }
+                                        sensCamion=optionFinal;
+                                    }
+
 
                                     al_clear_to_color(al_map_rgb(0, 0, 0));
 
@@ -1172,6 +1280,7 @@ void affichage(){
                                             }
                                             if (niveauvue == 0) {
                                                 al_draw_bitmap(Route[typederoute], CASE * (float) i + decallagex,CASE * (float) j + decallagey, 0);
+
                                             } else {
                                                 al_draw_tinted_bitmap(Route[typederoute], al_map_rgb(200, 165, 235),CASE * (float) i + decallagex,CASE * (float) j + decallagey, 0);
                                                 if (typederoute != 0) {
@@ -1184,6 +1293,27 @@ void affichage(){
                                                 }
                                             }
                                         }
+                                    }
+                                    if(camionpresent){
+                                        if(orientationcamion==0){
+                                            if(sensCamion==0){
+                                                al_draw_bitmap(Pompierhaut,xcamion*CASE+decallagex, ycamion*CASE+decallagey,0 );
+                                            }else if(sensCamion==1){
+                                                al_draw_bitmap(Pompierbas,xcamion*CASE+decallagex, ycamion*CASE+decallagey,0 );
+                                            }else{
+                                                al_draw_bitmap(Pompiercote,xcamion*CASE+decallagex, ycamion*CASE+decallagey,((sensCamion==3) ? 0 : 1) );
+                                            }
+                                        }else{
+                                            if(sensCamion==0){
+                                                al_draw_bitmap(Pompierhaut,xcamion*CASE+decallagex, ycamion*CASE+decallagey-((((int) compttimer / 8) % 2 * 10)-20),0 );
+                                            }else if(sensCamion==1){
+                                                al_draw_bitmap(Pompierbas,xcamion*CASE+decallagex, ycamion*CASE+decallagey+((((int) compttimer / 8) % 2 * 10)-20),0 );
+                                            }else{
+                                                al_draw_bitmap(Pompiercote,xcamion*CASE+decallagex+((sensCamion==3) ? 1 : -1) *((((int) compttimer / 8) % 2 * 10)-20), ycamion*CASE+decallagey,((sensCamion==3) ? 0 : 1) );
+                                            }
+                                        }
+
+
                                     }
 
                                     if (attaquegodzilla) {
@@ -1402,6 +1532,9 @@ void affichage(){
                                         al_draw_filled_rectangle(larg - 200, 20, larg - 20, 160,
                                                                  al_map_rgba(105, 105, 105, 200));
                                     }
+                                    if(probaattaque==1){
+                                        al_draw_bitmap(RampageLogo, larg-82, 280,0);
+                                    }
 
                                     al_draw_rectangle(larg - 200 - 2, 20 - 2, larg - 20 + 2, 160 + 2,
                                                       al_map_rgba(0, 050, 00, 255), 4);
@@ -1598,11 +1731,6 @@ void affichage(){
                                 }
 
 
-
-
-
-
-
                                 al_flip_display();
                             }
                             break;
@@ -1635,6 +1763,15 @@ void affichage(){
                                         pause=false;
                                     }else if (!confirmationsauvegarde && !confirmationquitter){
                                         pause=true;
+                                    }
+                                    break;
+                                case ALLEGRO_KEY_R:
+                                    if(!pause && !confirmationsauvegarde && !confirmationquitter){
+                                        if(probaattaque>1){
+                                            probaattaque=1;
+                                        }else{
+                                            probaattaque=5;
+                                        }
                                     }
                                     break;
 
@@ -1727,9 +1864,24 @@ void affichage(){
                                         casesMap[Caseselec.numcolonne][Caseselec.numligne].typedeconstruction=ROUTE;
                                         casesMap[Caseselec.numcolonne][Caseselec.numligne].sapin=false;
                                         pokedollars-=10;
+                                        if(!camionpresent){
+                                            BFSCaserne(&casesMap);
+                                            if(casesMap[Caseselec.numcolonne][Caseselec.numligne].protegedufeu){
+                                                camionpresent=true;
+                                                xcamion=Caseselec.numcolonne;
+                                                ycamion=Caseselec.numligne;
+                                            }
+                                        }
+
+                                        nombreroutes++;
+
 
                                     }else if(Caseselec.numcolonne<45&&casesMap[Caseselec.numcolonne][Caseselec.numligne].typedeconstruction==ROUTE){
+                                        if(camionpresent&&xcamion ==Caseselec.numcolonne && ycamion==Caseselec.numligne){
+                                            camionpresent=false;
+                                        }
                                         casesMap[Caseselec.numcolonne][Caseselec.numligne].typedeconstruction=AUCUNE;
+                                        nombreroutes--;
                                     }
                                 }else {
 

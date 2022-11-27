@@ -1,4 +1,5 @@
 //
+
 // Created by gabdu on 02/11/2022.
 //gggg
 
@@ -6,7 +7,7 @@
 #define XPRIMAIRE 0
 #define YPRIMAIRE 0
 #define CASE 40
-
+/*
 
 void testvoiture(){
 
@@ -103,6 +104,11 @@ void testvoiture(){
     ALLEGRO_BITMAP* Sapin=al_load_bitmap("../Route/Sapin.PNG");
     ALLEGRO_BITMAP* Ingo=al_load_bitmap("../ImagesMenuStart/SpriteIngo.PNG");
     ALLEGRO_BITMAP *Pompier=al_load_bitmap("../ImagesAnae/Camionpompier.PNG");
+    /// Pour les sons :)
+    ALLEGRO_SAMPLE* ClickSouris= al_load_sample("../Son/ClickSouris.mp3");
+    ALLEGRO_SAMPLE* GodzillaGrowl= al_load_sample("../Son/GodzillaGrowl.mp3");
+    ALLEGRO_SAMPLE* GodzillaPas= al_load_sample("../Son/GodzillaPas.mp3");
+
 
 
     assert(Pompier);
@@ -149,8 +155,11 @@ void testvoiture(){
     int etatjeu=0;
     int distance=0;
     int hauteur=0;
+    int distancefinal=32;
+    int hauteurfinal=22;
     int orientation=0;
     int sensCamion=3;
+    srand(time(NULL));
 
     bool finpartie=false;
     bool finjeu=false;
@@ -372,11 +381,6 @@ void testvoiture(){
                                     }
                                 }
 
-
-
-
-
-
                                 al_draw_filled_rectangle(Caseselec.x, Caseselec.y, Caseselec.x+CASE, Caseselec.y+CASE, al_map_rgba(200, 20, 20, 80));
 
                                 al_draw_filled_rectangle(larg-200, 20, larg-20, 160, al_map_rgba(255, 255, 255, 100));
@@ -395,7 +399,10 @@ void testvoiture(){
                                 al_draw_textf(PressStart35, al_map_rgb(10, 10, 10), larg/2, 20, 0, "%d", (int)chrono);
 
 
-                                /// Chemin Super Camion De Maxi Tiplouf Pompier
+
+
+
+                                /// Chemin de Super Camion De Maxi Tiplouf Pompier pour sauver le village !
 
                                 bool DroiteCamion=false, GaucheCamion=false, HautCamion=false, BasCamion=false;
                                 int sensChoisi=0;
@@ -415,47 +422,25 @@ void testvoiture(){
                                     HautCamion=true;
 
                                 }
-                                int optionsCamion = DroiteCamion + GaucheCamion + HautCamion + BasCamion;
+                                int optionsCamion = DroiteCamion + GaucheCamion + HautCamion + BasCamion + 1;
 
-                                sensChoisi=0;
-                                for (int i = 1; i < optionsCamion+1; i++) {
+                                /// Pour choix de la route au hasard
 
-                                    if (rand()%i==0){
-                                        sensChoisi=i;
-                                        i=optionsCamion+1;
+                                sensChoisi = rand() % optionsCamion;
+                                int taboption[4] = {HautCamion , BasCamion , GaucheCamion , DroiteCamion};
+                                int compteurCamion=0;
+                                for (int i = 0; i < 4; ++i) {
+                                    if(taboption[i]==true){
+                                        compteurCamion++;
+                                        if (sensChoisi == compteurCamion){
+                                            optionFinal=i;
+                                        }
+                                    }
+
+                                }
 
 
-                                    }
-                                }
-                                printf("\n \n");
-                                if (HautCamion && sensChoisi!=0){
-                                    if(sensChoisi==1) {
-                                        optionFinal = 0;
-                                    }else{
-                                        sensChoisi--;
-                                    }
-                                }
-                                if (BasCamion && sensChoisi!=0){
-                                    if(sensChoisi==1) {
-                                        optionFinal = 1;
-                                    }else{
-                                        sensChoisi--;
-                                    }
-                                }
-                                if (GaucheCamion && sensChoisi!=0){
-                                    if(sensChoisi==1) {
-                                        optionFinal = 2;
-                                    }else{
-                                        sensChoisi--;
-                                    }
-                                }
-                                if (DroiteCamion && sensChoisi!=0){
-                                    if(sensChoisi==1) {
-                                        optionFinal = 3;
-                                    }else{
-                                        sensChoisi--;
-                                    }
-                                }
+//
 
                                 switch(optionFinal){
                                     case -1:
@@ -478,10 +463,11 @@ void testvoiture(){
                                 al_draw_bitmap(Pompier,distance*CASE+decallagex, hauteur*CASE+decallagey,orientation );
 
                                 al_flip_display();
-
-
                             }
                             break;
+
+                            ////// Faire que le camion aille d'un point A à un point B donnés
+
 
 
                         case ALLEGRO_EVENT_KEY_DOWN:
@@ -490,20 +476,7 @@ void testvoiture(){
                                     finpartie = true;
                                     finjeu=true;
                                     break;
-                                case ALLEGRO_KEY_RIGHT:
-                                    distance+=1;
-                                    orientation=0;
-                                    break;
-                                case ALLEGRO_KEY_LEFT:
-                                    distance-=1;
-                                    orientation=1;
-                                    break;
-                                case ALLEGRO_KEY_UP:
-                                    hauteur-=1;
-                                    break;
-                                case ALLEGRO_KEY_DOWN:
-                                    hauteur+=1;
-                                    break;
+
                             }
 
                             break;
@@ -607,4 +580,4 @@ void calculcaseselecAna(ALLEGRO_MOUSE_STATE* mouse_state, Avantplan* Caseselec, 
         Caseselec->numcolonne=2000;
         Caseselec->numligne=2000;
     }
-}
+}*/

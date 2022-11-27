@@ -16,8 +16,9 @@ typedef struct{
 
 
 void  BFS (Cases ***cases, int flux);
+void  BFSCaserne (Cases ***cases);
 
-void route (Cases ***cases, int x, int y, Tableau* tabGeneral);
+void route (Cases ***cases, int x, int y, Tableau* tabGeneral, int protectionfeu);
 void verifierHabitation (Cases ***cases, int x, int y, Tableau* tabGeneral, int flux);
 void deduireCapacite(Cases ***cases, int x, int y, Tableau* tabGeneral, int flux);
 
